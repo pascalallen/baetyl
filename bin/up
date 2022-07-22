@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+# change to the project root
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$DIR"/.. || exit
+
+docker container run \
+    --rm -it \
+    -v "$(pwd)":/app \
+    -w /app/client \
+    node:lts yarn ci
+
+docker-compose build && docker-compose up -d "$@" && docker-compose logs -f

@@ -1,0 +1,38 @@
+version: '3.9'
+
+services:
+  baetyl-postgres:
+    build:
+      context: ./etc/postgres
+    container_name: baetyl-postgres
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - dbdata:/var/lib/postgresql/data
+    networks:
+      - baetyl
+
+  baetyl-go:
+    build:
+      context: .
+    container_name: baetyl-go
+    ports:
+      - "80:80"
+    volumes:
+      - .:/app:rw,cached
+    networks:
+      baetyl:
+        aliases:
+          - local.baetyl.com
+
+networks:
+  baetyl:
+    name: baetyl
+
+volumes:
+  dbdata:
+    driver: local
