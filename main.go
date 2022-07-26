@@ -41,10 +41,32 @@ func main() {
 	{
 		v1.GET("/test", handleTest)
 		v1.POST("/upload", handleFileUpload)
+
+		auth := v1.Group("/auth")
+		{
+			auth.POST("/register", handleRegisterUser)
+			auth.POST("/session", handleLoginUser)
+			auth.DELETE("/session", handleLogoutUser)
+			auth.PATCH("/session", handleRefreshUserSession)
+			auth.POST("/reset", handleRequestPasswordReset)
+			auth.POST("/password", handleResetPassword)
+		}
 	}
 
 	log.Fatal(router.Run(":80"))
 }
+
+func handleRegisterUser(c *gin.Context) {}
+
+func handleLoginUser(c *gin.Context) {}
+
+func handleLogoutUser(c *gin.Context) {}
+
+func handleRefreshUserSession(c *gin.Context) {}
+
+func handleRequestPasswordReset(c *gin.Context) {}
+
+func handleResetPassword(c *gin.Context) {}
 
 func handleFileUpload(c *gin.Context) {
 	if c.Request.Method != "POST" {
