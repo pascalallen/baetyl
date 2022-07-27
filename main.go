@@ -5,23 +5,13 @@ import (
 	"fmt"
 	_ "github.com/joho/godotenv/autoload"
 	_ "github.com/lib/pq"
-	"github.com/pascalallen/Baetyl/src/Adapter/Http/JSend"
-	"github.com/pascalallen/Baetyl/src/Domain/PasswordHash"
-	"github.com/pascalallen/Baetyl/src/Domain/User"
+	RegisterUserAction "github.com/pascalallen/Baetyl/src/Adapter/Http/Action/Api/V1/Auth"
 	"log"
 	"net/http"
 	"os"
 
 	"github.com/gin-gonic/gin"
 )
-
-type RegisterUserFormValidations struct {
-	FirstName       string `form:"first_name" json:"first_name" binding:"required"`
-	LastName        string `form:"last_name" json:"last_name" binding:"required"`
-	EmailAddress    string `form:"email_address" json:"email_address" binding:"required,email"`
-	Password        string `form:"password" json:"password" binding:"required"`
-	ConfirmPassword string `form:"confirm_password" json:"confirm_password" binding:"required,eqfield=Password"`
-}
 
 func main() {
 	connStr := fmt.Sprintf(
@@ -50,7 +40,7 @@ func main() {
 	{
 		auth := v1.Group("/auth")
 		{
-			auth.POST("/register", handleRegisterUser)
+			auth.POST("/register", RegisterUserAction.Handle)
 			auth.POST("/session", handleLoginUser)
 			auth.DELETE("/session", handleLogoutUser)
 			auth.PATCH("/session", handleRefreshUserSession)
@@ -60,35 +50,6 @@ func main() {
 	}
 
 	log.Fatal(router.Run(":80"))
-}
-
-func handleRegisterUser(c *gin.Context) {
-	var form RegisterUserFormValidations
-
-	err := c.ShouldBind(&form)
-	if err != nil {
-		c.JSON(
-			http.StatusBadRequest,
-			JSend.FailResponse[string]{
-				Status: "fail",
-				Data:   err.Error(),
-			},
-		)
-
-		return
-	}
-
-	user := User.Register(form.FirstName, form.LastName, form.EmailAddress)
-	passwordHash := PasswordHash.Create(form.Password)
-	user.SetPasswordHash(passwordHash)
-
-	c.JSON(
-		http.StatusCreated,
-		JSend.SuccessResponse[User.User]{
-			Status: "success",
-			Data:   *user,
-		},
-	)
 }
 
 func handleLoginUser(c *gin.Context) {}

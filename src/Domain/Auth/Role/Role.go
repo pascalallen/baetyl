@@ -2,7 +2,7 @@ package Role
 
 import (
 	"github.com/google/uuid"
-	"github.com/pascalallen/Baetyl/src/Domain/Permission"
+	"github.com/pascalallen/Baetyl/src/Domain/Auth/Permission"
 	"time"
 )
 

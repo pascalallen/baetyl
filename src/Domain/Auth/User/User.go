@@ -2,9 +2,9 @@ package User
 
 import (
 	"github.com/google/uuid"
-	"github.com/pascalallen/Baetyl/src/Domain/PasswordHash"
-	"github.com/pascalallen/Baetyl/src/Domain/Permission"
-	"github.com/pascalallen/Baetyl/src/Domain/Role"
+	"github.com/pascalallen/Baetyl/src/Domain/Auth/PasswordHash"
+	"github.com/pascalallen/Baetyl/src/Domain/Auth/Permission"
+	"github.com/pascalallen/Baetyl/src/Domain/Auth/Role"
 	"time"
 )
 
