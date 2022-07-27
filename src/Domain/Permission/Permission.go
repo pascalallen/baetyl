@@ -6,11 +6,11 @@ import (
 )
 
 type Permission struct {
-	id          uuid.UUID `validate:"required,uuid"`
-	name        string    `validate:"required"`
-	description string    `validate:"required"`
-	createdAt   time.Time `validate:"required,datetime"`
-	modifiedAt  time.Time `validate:"required,datetime"`
+	Id          uuid.UUID `json:"id"`
+	Name        string    `json:"name"`
+	Description string    `json:"description"`
+	CreatedAt   time.Time `json:"created_at"`
+	ModifiedAt  time.Time `json:"modified_at"`
 }
 
 func Define(name string, description string) *Permission {
@@ -18,40 +18,20 @@ func Define(name string, description string) *Permission {
 	createdAt := time.Now()
 
 	return &Permission{
-		id:          id,
-		name:        name,
-		description: description,
-		createdAt:   createdAt,
-		modifiedAt:  createdAt,
+		Id:          id,
+		Name:        name,
+		Description: description,
+		CreatedAt:   createdAt,
+		ModifiedAt:  createdAt,
 	}
 }
 
-func (p *Permission) Id() uuid.UUID {
-	return p.id
-}
-
-func (p *Permission) Name() string {
-	return p.name
-}
-
 func (p *Permission) UpdateName(name string) {
-	p.name = name
-	p.modifiedAt = time.Now()
-}
-
-func (p *Permission) Description() string {
-	return p.description
+	p.Name = name
+	p.ModifiedAt = time.Now()
 }
 
 func (p *Permission) UpdateDescription(description string) {
-	p.description = description
-	p.modifiedAt = time.Now()
-}
-
-func (p *Permission) CreatedAt() time.Time {
-	return p.createdAt
-}
-
-func (p *Permission) ModifiedAt() time.Time {
-	return p.modifiedAt
+	p.Description = description
+	p.ModifiedAt = time.Now()
 }

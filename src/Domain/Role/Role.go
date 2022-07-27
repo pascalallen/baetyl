@@ -7,11 +7,11 @@ import (
 )
 
 type Role struct {
-	id          uuid.UUID               `validate:"required,uuid"`
-	name        string                  `validate:"required"`
-	permissions []Permission.Permission `validate:"required"`
-	createdAt   time.Time               `validate:"required,datetime"`
-	modifiedAt  time.Time               `validate:"required,datetime"`
+	Id          uuid.UUID               `json:"id"`
+	Name        string                  `json:"name"`
+	Permissions []Permission.Permission `json:"permissions,omitempty"`
+	CreatedAt   time.Time               `json:"created_at"`
+	ModifiedAt  time.Time               `json:"modified_at"`
 }
 
 func Define(name string) *Role {
@@ -19,65 +19,45 @@ func Define(name string) *Role {
 	createdAt := time.Now()
 
 	return &Role{
-		id:         id,
-		name:       name,
-		createdAt:  createdAt,
-		modifiedAt: createdAt,
+		Id:         id,
+		Name:       name,
+		CreatedAt:  createdAt,
+		ModifiedAt: createdAt,
 	}
 }
 
-func (r *Role) Id() uuid.UUID {
-	return r.id
-}
-
-func (r *Role) Name() string {
-	return r.name
-}
-
 func (r *Role) UpdateName(name string) {
-	r.name = name
-	r.modifiedAt = time.Now()
-}
-
-func (r *Role) Permissions() []Permission.Permission {
-	return r.permissions
+	r.Name = name
+	r.ModifiedAt = time.Now()
 }
 
 func (r *Role) AddPermission(permission Permission.Permission) {
-	for _, p := range r.permissions {
-		if p.Id() == permission.Id() {
+	for _, p := range r.Permissions {
+		if p.Id == permission.Id {
 			return
 		}
 	}
 
-	r.permissions = append(r.permissions, permission)
-	r.modifiedAt = time.Now()
+	r.Permissions = append(r.Permissions, permission)
+	r.ModifiedAt = time.Now()
 }
 
 func (r *Role) RemovePermission(permission Permission.Permission) {
-	for i, p := range r.permissions {
-		if p.Id() == permission.Id() {
-			r.permissions[i] = r.permissions[len(r.permissions)-1]
+	for i, p := range r.Permissions {
+		if p.Id == permission.Id {
+			r.Permissions[i] = r.Permissions[len(r.Permissions)-1]
 		}
 	}
 
-	r.permissions = r.permissions[:len(r.permissions)-1]
+	r.Permissions = r.Permissions[:len(r.Permissions)-1]
 }
 
 func (r *Role) HasPermission(name string) bool {
-	for _, p := range r.permissions {
-		if p.Name() == name {
+	for _, p := range r.Permissions {
+		if p.Name == name {
 			return true
 		}
 	}
 
 	return false
-}
-
-func (r *Role) CreatedAt() time.Time {
-	return r.createdAt
-}
-
-func (r *Role) ModifiedAt() time.Time {
-	return r.modifiedAt
 }
