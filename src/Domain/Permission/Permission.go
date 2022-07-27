@@ -13,11 +13,11 @@ type Permission struct {
 	modifiedAt  time.Time `validate:"required,datetime"`
 }
 
-func Define(name string, description string) Permission {
+func Define(name string, description string) *Permission {
 	id := uuid.New()
 	createdAt := time.Now()
 
-	return Permission{
+	return &Permission{
 		id:          id,
 		name:        name,
 		description: description,
@@ -26,32 +26,32 @@ func Define(name string, description string) Permission {
 	}
 }
 
-func (p Permission) Id() uuid.UUID {
+func (p *Permission) Id() uuid.UUID {
 	return p.id
 }
 
-func (p Permission) Name() string {
+func (p *Permission) Name() string {
 	return p.name
 }
 
-func (p Permission) UpdateName(name string) {
+func (p *Permission) UpdateName(name string) {
 	p.name = name
 	p.modifiedAt = time.Now()
 }
 
-func (p Permission) Description() string {
+func (p *Permission) Description() string {
 	return p.description
 }
 
-func (p Permission) UpdateDescription(description string) {
+func (p *Permission) UpdateDescription(description string) {
 	p.description = description
 	p.modifiedAt = time.Now()
 }
 
-func (p Permission) CreatedAt() time.Time {
+func (p *Permission) CreatedAt() time.Time {
 	return p.createdAt
 }
 
-func (p Permission) ModifiedAt() time.Time {
+func (p *Permission) ModifiedAt() time.Time {
 	return p.modifiedAt
 }

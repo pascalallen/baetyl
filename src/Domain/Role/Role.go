@@ -14,38 +14,36 @@ type Role struct {
 	modifiedAt  time.Time               `validate:"required,datetime"`
 }
 
-func Define(name string) Role {
+func Define(name string) *Role {
 	id := uuid.New()
 	createdAt := time.Now()
 
-	return Role{
-		id:          id,
-		name:        name,
-		permissions: nil,
-		createdAt:   createdAt,
-		modifiedAt:  createdAt,
+	return &Role{
+		id:         id,
+		name:       name,
+		createdAt:  createdAt,
+		modifiedAt: createdAt,
 	}
 }
 
-func (r Role) Id() uuid.UUID {
+func (r *Role) Id() uuid.UUID {
 	return r.id
 }
 
-func (r Role) Name() string {
+func (r *Role) Name() string {
 	return r.name
 }
 
-func (r Role) UpdateName(name string) {
+func (r *Role) UpdateName(name string) {
 	r.name = name
 	r.modifiedAt = time.Now()
 }
 
-func (r Role) Permissions() []Permission.Permission {
+func (r *Role) Permissions() []Permission.Permission {
 	return r.permissions
 }
 
-func (r Role) AddPermission(permission Permission.Permission) {
-	// TODO: Verify that this works
+func (r *Role) AddPermission(permission Permission.Permission) {
 	for _, p := range r.permissions {
 		if p.Id() == permission.Id() {
 			return
@@ -56,11 +54,17 @@ func (r Role) AddPermission(permission Permission.Permission) {
 	r.modifiedAt = time.Now()
 }
 
-func (r Role) RemovePermission(permission Permission.Permission) {
-	// TODO
+func (r *Role) RemovePermission(permission Permission.Permission) {
+	for i, p := range r.permissions {
+		if p.Id() == permission.Id() {
+			r.permissions[i] = r.permissions[len(r.permissions)-1]
+		}
+	}
+
+	r.permissions = r.permissions[:len(r.permissions)-1]
 }
 
-func (r Role) HasPermission(name string) bool {
+func (r *Role) HasPermission(name string) bool {
 	for _, p := range r.permissions {
 		if p.Name() == name {
 			return true
@@ -70,10 +74,10 @@ func (r Role) HasPermission(name string) bool {
 	return false
 }
 
-func (r Role) CreatedAt() time.Time {
+func (r *Role) CreatedAt() time.Time {
 	return r.createdAt
 }
 
-func (r Role) ModifiedAt() time.Time {
+func (r *Role) ModifiedAt() time.Time {
 	return r.modifiedAt
 }

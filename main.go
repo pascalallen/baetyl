@@ -6,6 +6,7 @@ import (
 	_ "github.com/joho/godotenv/autoload"
 	_ "github.com/lib/pq"
 	"github.com/pascalallen/Baetyl/src/Adapter/Http/JSend"
+	"go/types"
 	"log"
 	"mime/multipart"
 	"net/http"
@@ -132,9 +133,8 @@ func handleFileUpload(c *gin.Context) {
 func handleTest(c *gin.Context) {
 	c.IndentedJSON(
 		http.StatusOK,
-		JSend.SuccessResponse[any]{
+		JSend.SuccessResponse[types.Nil]{
 			Status: "success",
-			Data:   nil,
 		},
 	)
 }

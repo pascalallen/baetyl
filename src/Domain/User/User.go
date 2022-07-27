@@ -20,69 +20,65 @@ type User struct {
 	deletedAt    time.Time                 `validate:"datetime"`
 }
 
-func Register(firstName string, lastName string, emailAddress string) User {
+func Register(firstName string, lastName string, emailAddress string) *User {
 	id := uuid.New()
 	createdAt := time.Now()
 
-	return User{
+	return &User{
 		id:           id,
 		firstName:    firstName,
 		lastName:     lastName,
 		emailAddress: emailAddress,
-		// TODO: replace "temp_password" with random string
-		passwordHash: PasswordHash.Create("temp_password"),
-		roles:        nil,
 		createdAt:    createdAt,
 		modifiedAt:   createdAt,
 	}
 }
 
-func (u User) Id() uuid.UUID {
+func (u *User) Id() uuid.UUID {
 	return u.id
 }
 
-func (u User) FirstName() string {
+func (u *User) FirstName() string {
 	return u.firstName
 }
 
-func (u User) UpdateFirstName(firstName string) {
+func (u *User) UpdateFirstName(firstName string) {
 	u.firstName = firstName
 	u.modifiedAt = time.Now()
 }
 
-func (u User) LastName() string {
+func (u *User) LastName() string {
 	return u.lastName
 }
 
-func (u User) UpdateLastName(lastName string) {
+func (u *User) UpdateLastName(lastName string) {
 	u.lastName = lastName
 	u.modifiedAt = time.Now()
 }
 
-func (u User) EmailAddress() string {
+func (u *User) EmailAddress() string {
 	return u.emailAddress
 }
 
-func (u User) UpdateEmailAddress(emailAddress string) {
+func (u *User) UpdateEmailAddress(emailAddress string) {
 	u.emailAddress = emailAddress
 	u.modifiedAt = time.Now()
 }
 
-func (u User) PasswordHash() PasswordHash.PasswordHash {
+func (u *User) PasswordHash() PasswordHash.PasswordHash {
 	return u.passwordHash
 }
 
-func (u User) UpdatePasswordHash(passwordHash PasswordHash.PasswordHash) {
+func (u *User) UpdatePasswordHash(passwordHash PasswordHash.PasswordHash) {
 	u.passwordHash = passwordHash
 	u.modifiedAt = time.Now()
 }
 
-func (u User) Roles() []Role.Role {
+func (u *User) Roles() []Role.Role {
 	return u.roles
 }
 
-func (u User) AddRole(role Role.Role) {
-	// TODO: Verify that this works
+func (u *User) AddRole(role Role.Role) {
 	for _, r := range u.roles {
 		if r.Id() == role.Id() {
 			return
@@ -93,11 +89,17 @@ func (u User) AddRole(role Role.Role) {
 	u.modifiedAt = time.Now()
 }
 
-func (u User) RemoveRole(role Role.Role) {
-	// TODO
+func (u *User) RemoveRole(role Role.Role) {
+	for i, r := range u.roles {
+		if r.Id() == role.Id() {
+			u.roles[i] = u.roles[len(u.roles)-1]
+		}
+	}
+
+	u.roles = u.roles[:len(u.roles)-1]
 }
 
-func (u User) HasRole(name string) bool {
+func (u *User) HasRole(name string) bool {
 	for _, r := range u.roles {
 		if r.Name() == name {
 			return true
@@ -107,7 +109,7 @@ func (u User) HasRole(name string) bool {
 	return false
 }
 
-func (u User) Permissions() []Permission.Permission {
+func (u *User) Permissions() []Permission.Permission {
 	var permissions []Permission.Permission
 	for _, r := range u.roles {
 		permissions = append(permissions, r.Permissions()...)
@@ -116,7 +118,7 @@ func (u User) Permissions() []Permission.Permission {
 	return permissions
 }
 
-func (u User) HasPermission(name string) bool {
+func (u *User) HasPermission(name string) bool {
 	for _, p := range u.Permissions() {
 		if p.Name() == name {
 			return true
@@ -126,27 +128,28 @@ func (u User) HasPermission(name string) bool {
 	return false
 }
 
-func (u User) CreatedAt() time.Time {
+func (u *User) CreatedAt() time.Time {
 	return u.createdAt
 }
 
-func (u User) ModifiedAt() time.Time {
+func (u *User) ModifiedAt() time.Time {
 	return u.modifiedAt
 }
 
-func (u User) DeletedAt() time.Time {
+func (u *User) DeletedAt() time.Time {
 	return u.deletedAt
 }
 
-func (u User) IsDeleted() bool {
-	return !u.deletedAt.IsZero()
+func (u *User) IsDeleted() bool {
+	return !u.DeletedAt().IsZero()
 }
 
-func (u User) Delete() {
+func (u *User) Delete() {
 	u.deletedAt = time.Now()
 	u.modifiedAt = u.deletedAt
 }
 
-func (u User) Restore() {
-	// TODO
+func (u *User) Restore() {
+	u.deletedAt = time.Time{}
+	u.modifiedAt = time.Now()
 }
