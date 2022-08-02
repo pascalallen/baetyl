@@ -16,7 +16,7 @@ type User struct {
 	LastName     string    `json:"last_name"`
 	EmailAddress string    `json:"email_address"`
 	passwordHash PasswordHash.PasswordHash
-	Roles        []Role.Role `json:"roles,omitempty"`
+	Roles        []Role.Role `json:"roles,omitempty" gorm:"many2many:user_roles;"`
 	CreatedAt    time.Time   `json:"created_at"`
 	ModifiedAt   time.Time   `json:"modified_at"`
 	// TODO: Determine how to make nullable/optional

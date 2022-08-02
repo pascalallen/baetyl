@@ -24,6 +24,8 @@ services:
       - "80:80"
     volumes:
       - .:/app:rw,cached
+    depends_on:
+      - baetyl-postgres
     networks:
       baetyl:
         aliases:

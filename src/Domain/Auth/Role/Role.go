@@ -11,7 +11,7 @@ type Role struct {
 	gorm.Model
 	Id          uuid.UUID               `json:"id" gorm:"primaryKey"`
 	Name        string                  `json:"name"`
-	Permissions []Permission.Permission `json:"permissions,omitempty"`
+	Permissions []Permission.Permission `json:"permissions,omitempty" gorm:"many2many:role_permissions;"`
 	CreatedAt   time.Time               `json:"created_at"`
 	ModifiedAt  time.Time               `json:"modified_at"`
 }

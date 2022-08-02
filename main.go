@@ -1,12 +1,39 @@
 package main
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	_ "github.com/joho/godotenv/autoload"
 	RegisterUserAction "github.com/pascalallen/Baetyl/src/Adapter/Http/Action/Api/V1/Auth"
+	"github.com/pascalallen/Baetyl/src/Domain/Auth/Permission"
+	"github.com/pascalallen/Baetyl/src/Domain/Auth/Role"
+	"github.com/pascalallen/Baetyl/src/Domain/Auth/User"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 	"log"
 	"net/http"
+	"os"
 )
+
+func init() {
+	dsn := fmt.Sprintf(
+		"host=%s user=%s password=%s dbname=%s port=%s",
+		os.Getenv("DB_HOST"),
+		os.Getenv("DB_USER"),
+		os.Getenv("DB_PASSWORD"),
+		os.Getenv("DB_NAME"),
+		os.Getenv("DB_PORT"),
+	)
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	if err != nil {
+		panic("failed to connect database")
+	}
+
+	err = db.AutoMigrate(&Permission.Permission{}, &Role.Role{}, &User.User{})
+	if err != nil {
+		panic("failed to migrate database")
+	}
+}
 
 func main() {
 	router := gin.Default()
