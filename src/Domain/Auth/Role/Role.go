@@ -3,11 +3,13 @@ package Role
 import (
 	"github.com/google/uuid"
 	"github.com/pascalallen/Baetyl/src/Domain/Auth/Permission"
+	"gorm.io/gorm"
 	"time"
 )
 
 type Role struct {
-	Id          uuid.UUID               `json:"id"`
+	gorm.Model
+	Id          uuid.UUID               `json:"id" gorm:"primaryKey"`
 	Name        string                  `json:"name"`
 	Permissions []Permission.Permission `json:"permissions,omitempty"`
 	CreatedAt   time.Time               `json:"created_at"`

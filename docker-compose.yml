@@ -29,6 +29,14 @@ services:
         aliases:
           - local.baetyl.com
 
+  baetyl-adminer:
+    image: adminer:4-standalone
+    restart: always
+    ports:
+      - "8888:8080"
+    networks:
+      - baetyl
+
 networks:
   baetyl:
     name: baetyl

@@ -2,11 +2,13 @@ package Permission
 
 import (
 	"github.com/google/uuid"
+	"gorm.io/gorm"
 	"time"
 )
 
 type Permission struct {
-	Id          uuid.UUID `json:"id"`
+	gorm.Model
+	Id          uuid.UUID `json:"id" gorm:"primaryKey"`
 	Name        string    `json:"name"`
 	Description string    `json:"description"`
 	CreatedAt   time.Time `json:"created_at"`

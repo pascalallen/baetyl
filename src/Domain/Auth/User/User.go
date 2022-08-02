@@ -5,11 +5,13 @@ import (
 	"github.com/pascalallen/Baetyl/src/Domain/Auth/PasswordHash"
 	"github.com/pascalallen/Baetyl/src/Domain/Auth/Permission"
 	"github.com/pascalallen/Baetyl/src/Domain/Auth/Role"
+	"gorm.io/gorm"
 	"time"
 )
 
 type User struct {
-	Id           uuid.UUID `json:"id"`
+	gorm.Model
+	Id           uuid.UUID `json:"id" gorm:"primaryKey"`
 	FirstName    string    `json:"first_name"`
 	LastName     string    `json:"last_name"`
 	EmailAddress string    `json:"email_address"`
