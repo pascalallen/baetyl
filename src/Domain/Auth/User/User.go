@@ -14,11 +14,11 @@ type User struct {
 	LastName     string                    `json:"last_name" gorm:"size:100;not null"`
 	EmailAddress string                    `json:"email_address" gorm:"size:100;not null"`
 	PasswordHash PasswordHash.PasswordHash `json:"-" gorm:"column:password;size:255;default:null"`
-	Roles        []Role.Role               `json:"roles,omitempty" gorm:"many2many:user_roles"`
+	Roles        []Role.Role               `json:"roles" gorm:"many2many:user_roles"`
 	CreatedAt    time.Time                 `json:"created_at" gorm:"not null"`
 	ModifiedAt   time.Time                 `json:"modified_at" gorm:"not null"`
 	// TODO: Determine how to make nullable/optional
-	DeletedAt time.Time `json:"deleted_at,omitempty" gorm:"default:null"`
+	DeletedAt time.Time `json:"deleted_at" gorm:"default:null"`
 }
 
 func Register(firstName string, lastName string, emailAddress string) *User {

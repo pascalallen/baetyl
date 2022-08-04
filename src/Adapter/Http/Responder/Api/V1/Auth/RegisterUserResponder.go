@@ -1,6 +1,7 @@
 package Auth
 
 import (
+	"encoding/json"
 	"github.com/gin-gonic/gin"
 	"github.com/pascalallen/Baetyl/src/Adapter/Http/Responder/JSend"
 	"github.com/pascalallen/Baetyl/src/Domain/Auth/User"
@@ -44,11 +45,13 @@ func BadRequestResponse(c *gin.Context, error error) {
 }
 
 func CreatedResponse(c *gin.Context, user *User.User) {
+	bytes, _ := json.Marshal(user)
+
 	c.JSON(
 		http.StatusCreated,
-		JSend.SuccessResponse[User.User]{
+		JSend.SuccessResponse[string]{
 			Status: "success",
-			Data:   *user,
+			Data:   string(bytes),
 		},
 	)
 
