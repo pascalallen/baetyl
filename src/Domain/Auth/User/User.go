@@ -1,30 +1,28 @@
 package User
 
 import (
-	"github.com/google/uuid"
+	"github.com/oklog/ulid/v2"
 	"github.com/pascalallen/Baetyl/src/Domain/Auth/PasswordHash"
 	"github.com/pascalallen/Baetyl/src/Domain/Auth/Permission"
 	"github.com/pascalallen/Baetyl/src/Domain/Auth/Role"
-	"gorm.io/gorm"
 	"time"
 )
 
 type User struct {
-	gorm.Model
-	Id           uuid.UUID `json:"id" gorm:"primaryKey"`
-	FirstName    string    `json:"first_name"`
-	LastName     string    `json:"last_name"`
-	EmailAddress string    `json:"email_address"`
-	passwordHash PasswordHash.PasswordHash
-	Roles        []Role.Role `json:"roles,omitempty" gorm:"many2many:user_roles;"`
-	CreatedAt    time.Time   `json:"created_at"`
-	ModifiedAt   time.Time   `json:"modified_at"`
+	Id           ulid.ULID                 `json:"id" gorm:"primaryKey;size:26;not null"`
+	FirstName    string                    `json:"first_name" gorm:"size:100;not null"`
+	LastName     string                    `json:"last_name" gorm:"size:100;not null"`
+	EmailAddress string                    `json:"email_address" gorm:"size:100;not null"`
+	PasswordHash PasswordHash.PasswordHash `json:"-" gorm:"column:password;size:255;default:null"`
+	Roles        []Role.Role               `json:"roles,omitempty" gorm:"many2many:user_roles"`
+	CreatedAt    time.Time                 `json:"created_at" gorm:"not null"`
+	ModifiedAt   time.Time                 `json:"modified_at" gorm:"not null"`
 	// TODO: Determine how to make nullable/optional
-	DeletedAt time.Time `json:"deleted_at,omitempty"`
+	DeletedAt time.Time `json:"deleted_at,omitempty" gorm:"default:null"`
 }
 
 func Register(firstName string, lastName string, emailAddress string) *User {
-	id := uuid.New()
+	id := ulid.Make()
 	createdAt := time.Now()
 
 	return &User{
@@ -52,12 +50,8 @@ func (u *User) UpdateEmailAddress(emailAddress string) {
 	u.ModifiedAt = time.Now()
 }
 
-func (u *User) PasswordHash() PasswordHash.PasswordHash {
-	return u.passwordHash
-}
-
 func (u *User) SetPasswordHash(passwordHash PasswordHash.PasswordHash) {
-	u.passwordHash = passwordHash
+	u.PasswordHash = passwordHash
 	u.ModifiedAt = time.Now()
 }
 

@@ -1,8 +1,9 @@
 package User
 
 import (
+	"errors"
 	"fmt"
-	"github.com/google/uuid"
+	"github.com/oklog/ulid/v2"
 	"github.com/pascalallen/Baetyl/src/Domain/Auth/User"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -11,8 +12,7 @@ import (
 
 type GormUserRepository struct{}
 
-func (repository GormUserRepository) GetById(id uuid.UUID) *User.User {
-	// dsn := "host=localhost user=gorm password=gorm dbname=gorm port=9920 sslmode=disable TimeZone=Asia/Shanghai"
+func (repository GormUserRepository) GetById(id ulid.ULID) (*User.User, error) {
 	dsn := fmt.Sprintf(
 		"dbname=%s user=%s password=%s host=%s port=%s",
 		os.Getenv("DB_NAME"),
@@ -23,16 +23,18 @@ func (repository GormUserRepository) GetById(id uuid.UUID) *User.User {
 	)
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
-		panic("failed to connect database")
+		return nil, fmt.Errorf("failed to connect to database: %s, error: %s", dsn, err.Error())
 	}
 
 	var user *User.User
-	db.Preload("Roles.Permissions").First(&user, id)
+	if err := db.Preload("Roles.Permissions").First(&user, id).Error; errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, nil
+	}
 
-	return user
+	return user, nil
 }
 
-func (repository GormUserRepository) GetByEmailAddress(emailAddress string) *User.User {
+func (repository GormUserRepository) GetByEmailAddress(emailAddress string) (*User.User, error) {
 	dsn := fmt.Sprintf(
 		"dbname=%s user=%s password=%s host=%s port=%s",
 		os.Getenv("DB_NAME"),
@@ -43,16 +45,19 @@ func (repository GormUserRepository) GetByEmailAddress(emailAddress string) *Use
 	)
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
-		panic("failed to connect database")
+		return nil, fmt.Errorf("failed to connect to database: %s, error: %s", dsn, err.Error())
 	}
 
 	var user *User.User
-	db.Preload("Roles.Permissions").First(&user, "email_address = ?", emailAddress)
+	if err := db.Preload("Roles.Permissions").First(&user, "email_address = ?", emailAddress).Error; errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, nil
+	}
 
-	return user
+	return user, nil
 }
 
-func (repository GormUserRepository) GetAll(includeDeleted bool) *[]User.User {
+// GetAll TODO: Add pagination
+func (repository GormUserRepository) GetAll(includeDeleted bool) (*[]User.User, error) {
 	dsn := fmt.Sprintf(
 		"dbname=%s user=%s password=%s host=%s port=%s",
 		os.Getenv("DB_NAME"),
@@ -63,7 +68,7 @@ func (repository GormUserRepository) GetAll(includeDeleted bool) *[]User.User {
 	)
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
-		panic("failed to connect database")
+		return nil, fmt.Errorf("failed to connect to database: %s, error: %s", dsn, err.Error())
 	}
 
 	var users *[]User.User
@@ -71,29 +76,14 @@ func (repository GormUserRepository) GetAll(includeDeleted bool) *[]User.User {
 		db = db.Where("deleted_at IS NULL")
 	}
 
-	db.Find(&users)
-
-	return users
-}
-
-func (repository GormUserRepository) Add(user *User.User) {
-	dsn := fmt.Sprintf(
-		"dbname=%s user=%s password=%s host=%s port=%s",
-		os.Getenv("DB_NAME"),
-		os.Getenv("DB_USER"),
-		os.Getenv("DB_PASSWORD"),
-		os.Getenv("DB_HOST"),
-		os.Getenv("DB_PORT"),
-	)
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
-	if err != nil {
-		panic("failed to connect database")
+	if err := db.Find(&users).Error; err != nil {
+		return nil, fmt.Errorf("failed to get all users, error: %s", err.Error())
 	}
 
-	db.Create(&user)
+	return users, nil
 }
 
-func (repository GormUserRepository) Remove(user *User.User) {
+func (repository GormUserRepository) Add(user *User.User) error {
 	dsn := fmt.Sprintf(
 		"dbname=%s user=%s password=%s host=%s port=%s",
 		os.Getenv("DB_NAME"),
@@ -104,10 +94,35 @@ func (repository GormUserRepository) Remove(user *User.User) {
 	)
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
-		panic("failed to connect database")
+		return fmt.Errorf("failed to connect to database: %s, error: %s", dsn, err.Error())
+	}
+
+	if err := db.Create(&user).Error; err != nil {
+		return fmt.Errorf("failed to add user, error: %s", err.Error())
+	}
+
+	return nil
+}
+
+func (repository GormUserRepository) Remove(user *User.User) error {
+	dsn := fmt.Sprintf(
+		"dbname=%s user=%s password=%s host=%s port=%s",
+		os.Getenv("DB_NAME"),
+		os.Getenv("DB_USER"),
+		os.Getenv("DB_PASSWORD"),
+		os.Getenv("DB_HOST"),
+		os.Getenv("DB_PORT"),
+	)
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	if err != nil {
+		return fmt.Errorf("failed to connect to database: %s, error: %s", dsn, err.Error())
 	}
 
 	user.Delete()
 
-	db.Save(&user)
+	if err := db.Save(&user).Error; err != nil {
+		return fmt.Errorf("failed to remove user, error: %s", err.Error())
+	}
+
+	return nil
 }

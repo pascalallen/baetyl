@@ -1,14 +1,12 @@
 package Permission
 
 import (
-	"github.com/google/uuid"
-	"gorm.io/gorm"
+	"github.com/oklog/ulid/v2"
 	"time"
 )
 
 type Permission struct {
-	gorm.Model
-	Id          uuid.UUID `json:"id" gorm:"primaryKey"`
+	Id          ulid.ULID `json:"id" gorm:"primaryKey"`
 	Name        string    `json:"name"`
 	Description string    `json:"description"`
 	CreatedAt   time.Time `json:"created_at"`
@@ -16,7 +14,7 @@ type Permission struct {
 }
 
 func Define(name string, description string) *Permission {
-	id := uuid.New()
+	id := ulid.Make()
 	createdAt := time.Now()
 
 	return &Permission{

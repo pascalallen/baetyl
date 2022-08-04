@@ -1,28 +1,42 @@
 package Auth
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
-	Responder "github.com/pascalallen/Baetyl/src/Adapter/Http/Responder/Api/V1/Auth"
+	RegisterUserResponder "github.com/pascalallen/Baetyl/src/Adapter/Http/Responder/Api/V1/Auth"
+	GormUserRepository "github.com/pascalallen/Baetyl/src/Adapter/Repository/Auth/User"
 	UserValidations "github.com/pascalallen/Baetyl/src/Adapter/Validation/Auth/User"
 	"github.com/pascalallen/Baetyl/src/Domain/Auth/PasswordHash"
 	"github.com/pascalallen/Baetyl/src/Domain/Auth/User"
 )
 
 func Handle(c *gin.Context) {
-	var registerUserRules UserValidations.RegisterUserRules
+	var request UserValidations.RegisterUserRules
 
-	err := c.ShouldBind(&registerUserRules)
-	if err != nil {
-		Responder.BadRequestResponse(c, err)
+	if err := c.ShouldBind(&request); err != nil {
+		RegisterUserResponder.BadRequestResponse(c, err)
 
 		return
 	}
 
-	user := User.Register(registerUserRules.FirstName, registerUserRules.LastName, registerUserRules.EmailAddress)
-	passwordHash := PasswordHash.Create(registerUserRules.Password)
+	userRepository := GormUserRepository.GormUserRepository{}
+	if user, _ := userRepository.GetByEmailAddress(request.EmailAddress); user != nil {
+		RegisterUserResponder.UnprocessableEntityResponse(c, fmt.Errorf("user already exists with email address: %s", request.EmailAddress))
+
+		return
+	}
+
+	user := User.Register(request.FirstName, request.LastName, request.EmailAddress)
+	passwordHash := PasswordHash.Create(request.Password)
 	user.SetPasswordHash(passwordHash)
 
-	Responder.CreatedResponse(c, user)
+	if err := userRepository.Add(user); err != nil {
+		RegisterUserResponder.InternalServerErrorResponse(c, err)
+
+		return
+	}
+
+	RegisterUserResponder.CreatedResponse(c, user)
 
 	return
 }

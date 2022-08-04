@@ -7,6 +7,30 @@ import (
 	"net/http"
 )
 
+func InternalServerErrorResponse(c *gin.Context, error error) {
+	c.JSON(
+		http.StatusInternalServerError,
+		JSend.ErrorResponse[string]{
+			Status:  "error",
+			Message: error.Error(),
+		},
+	)
+
+	return
+}
+
+func UnprocessableEntityResponse(c *gin.Context, error error) {
+	c.JSON(
+		http.StatusUnprocessableEntity,
+		JSend.ErrorResponse[string]{
+			Status:  "error",
+			Message: error.Error(),
+		},
+	)
+
+	return
+}
+
 func BadRequestResponse(c *gin.Context, error error) {
 	c.JSON(
 		http.StatusBadRequest,

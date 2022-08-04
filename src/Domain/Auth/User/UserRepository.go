@@ -1,11 +1,11 @@
 package User
 
 import (
-	"github.com/google/uuid"
+	"github.com/oklog/ulid/v2"
 )
 
 type UserRepository interface {
-	GetById(id uuid.UUID) *User
+	GetById(id ulid.ULID) *User
 	GetByEmailAddress(emailAddress string) *User
 	// TODO: Include pagination
 	GetAll(includeDeleted bool) []*User

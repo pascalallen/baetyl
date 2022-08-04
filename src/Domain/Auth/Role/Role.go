@@ -1,23 +1,21 @@
 package Role
 
 import (
-	"github.com/google/uuid"
+	"github.com/oklog/ulid/v2"
 	"github.com/pascalallen/Baetyl/src/Domain/Auth/Permission"
-	"gorm.io/gorm"
 	"time"
 )
 
 type Role struct {
-	gorm.Model
-	Id          uuid.UUID               `json:"id" gorm:"primaryKey"`
+	Id          ulid.ULID               `json:"id" gorm:"primaryKey"`
 	Name        string                  `json:"name"`
-	Permissions []Permission.Permission `json:"permissions,omitempty" gorm:"many2many:role_permissions;"`
+	Permissions []Permission.Permission `json:"permissions,omitempty" gorm:"many2many:role_permissions"`
 	CreatedAt   time.Time               `json:"created_at"`
 	ModifiedAt  time.Time               `json:"modified_at"`
 }
 
 func Define(name string) *Role {
-	id := uuid.New()
+	id := ulid.Make()
 	createdAt := time.Now()
 
 	return &Role{
