@@ -54,12 +54,22 @@
             "position": "before"
           },
           {
+            "pattern": "@domain/**",
+            "group": "internal",
+            "position": "after"
+          },
+          {
             "pattern": "@routes/**",
             "group": "internal",
             "position": "after"
           },
           {
             "pattern": "@assets/**",
+            "group": "internal",
+            "position": "after"
+          },
+          {
+            "pattern": "@components/**",
             "group": "internal",
             "position": "after"
           },

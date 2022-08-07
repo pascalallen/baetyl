@@ -12,6 +12,12 @@
       "@assets/*": [
         "assets/*"
       ],
+      "@components/*": [
+        "components/*"
+      ],
+      "@domain/*": [
+        "domain/*"
+      ],
       "@fonts/*": [
         "assets/fonts/*"
       ],
