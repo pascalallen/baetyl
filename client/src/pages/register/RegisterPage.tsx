@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { FocusEvent, ChangeEvent, ReactElement } from 'react';
 import { useFormik } from 'formik';
 import Button from '@components/blocks/buttons/Button';
 import Form from '@components/blocks/forms/Form';
@@ -21,17 +21,21 @@ const initialFormValues: RegisterFormValues = {
 };
 
 const RegisterPage = (): ReactElement => {
-  const handleSubmit = (formData: RegisterFormValues): void => {
-    console.log(formData);
-  };
+  const handleSubmit = (formData: RegisterFormValues): void => console.log(formData);
+
+  const validate = (formData: RegisterFormValues): void => console.log(formData);
 
   const formik = useFormik({
     initialValues: initialFormValues,
-    validate: () => console.log('TODO'),
+    validate: validate,
     onSubmit: handleSubmit,
     validateOnBlur: true,
     validateOnChange: false
   });
+
+  const handleChange = (event: ChangeEvent<HTMLInputElement>): void => formik.handleChange(event);
+
+  const handleBlur = (event: FocusEvent<HTMLInputElement>): void => formik.handleBlur(event);
 
   return (
     <div className="container">
@@ -46,11 +50,11 @@ const RegisterPage = (): ReactElement => {
               label="First name"
               tabIndex={1}
               value={formik.values.first_name}
-              // isValid={firstNameInputProps.isValid}
-              // required={firstNameInputProps.isRequired}
-              // error={firstNameInputProps.errorMessage}
-              // onChange={handleChange}
-              // onBlur={handleBlur}
+              isValid={!(formik.touched.first_name && formik.errors.first_name)}
+              error={formik.touched.first_name && formik.errors.first_name ? formik.errors.first_name : undefined}
+              required
+              onChange={handleChange}
+              onBlur={handleBlur}
             />
             <InputTextControl
               inputId="register-form-last-name"
@@ -60,11 +64,11 @@ const RegisterPage = (): ReactElement => {
               label="Last name"
               tabIndex={2}
               value={formik.values.last_name}
-              // isValid={lastNameInputProps.isValid}
-              // required={lastNameInputProps.isRequired}
-              // error={lastNameInputProps.errorMessage}
-              // onChange={handleChange}
-              // onBlur={handleBlur}
+              isValid={!(formik.touched.last_name && formik.errors.last_name)}
+              error={formik.touched.last_name && formik.errors.last_name ? formik.errors.last_name : undefined}
+              required
+              onChange={handleChange}
+              onBlur={handleBlur}
             />
             <InputTextControl
               inputId="register-form-email-address"
@@ -74,11 +78,13 @@ const RegisterPage = (): ReactElement => {
               label="Email address"
               tabIndex={3}
               value={formik.values.email_address}
-              // isValid={emailInputProps.isValid}
-              // required={emailInputProps.isRequired}
-              // error={emailInputProps.errorMessage}
-              // onChange={handleChange}
-              // onBlur={handleBlur}
+              isValid={!(formik.touched.email_address && formik.errors.email_address)}
+              error={
+                formik.touched.email_address && formik.errors.email_address ? formik.errors.email_address : undefined
+              }
+              required
+              onChange={handleChange}
+              onBlur={handleBlur}
             />
             <InputTextControl
               inputId="register-form-password"
@@ -88,11 +94,11 @@ const RegisterPage = (): ReactElement => {
               label="Password"
               tabIndex={4}
               value={formik.values.password}
-              // isValid={passwordInputProps.isValid}
-              // required={passwordInputProps.isRequired}
-              // error={passwordInputProps.errorMessage}
-              // onChange={handleChange}
-              // onBlur={handleBlur}
+              isValid={!(formik.touched.password && formik.errors.password)}
+              error={formik.touched.password && formik.errors.password ? formik.errors.password : undefined}
+              required
+              onChange={handleChange}
+              onBlur={handleBlur}
             />
             <InputTextControl
               inputId="register-form-confirm-password"
@@ -102,11 +108,15 @@ const RegisterPage = (): ReactElement => {
               label="Confirm password"
               tabIndex={5}
               value={formik.values.confirm_password}
-              // isValid={confirmPasswordInputProps.isValid}
-              // required={confirmPasswordInputProps.isRequired}
-              // error={confirmPasswordInputProps.errorMessage}
-              // onChange={handleChange}
-              // onBlur={handleBlur}
+              isValid={!(formik.touched.confirm_password && formik.errors.confirm_password)}
+              error={
+                formik.touched.confirm_password && formik.errors.confirm_password
+                  ? formik.errors.confirm_password
+                  : undefined
+              }
+              required
+              onChange={handleChange}
+              onBlur={handleBlur}
             />
             <Button
               id="register-form-submit"
