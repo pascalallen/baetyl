@@ -21,6 +21,9 @@
       "@fonts/*": [
         "assets/fonts/*"
       ],
+      "@hooks/*": [
+        "hooks/*"
+      ],
       "@images/*": [
         "assets/images/*"
       ],

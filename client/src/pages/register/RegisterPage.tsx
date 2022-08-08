@@ -1,5 +1,11 @@
 import React, { FocusEvent, ChangeEvent, ReactElement, useState } from 'react';
 import { useFormik } from 'formik';
+import { useNavigate } from 'react-router';
+import Path from '@domain/constants/Path';
+import useSecurity from '@hooks/useSecurity';
+import { isApiError, isApiFail } from '@services/_api/ApiService';
+import notifications from '@services/notifications/notifications';
+import form from '@services/utilities/form';
 import Button from '@components/blocks/buttons/Button';
 import Form from '@components/blocks/forms/Form';
 import InputTextControl from '@components/compositions/forms/InputTextControl';
@@ -43,9 +49,39 @@ const initialState: State = {
 };
 
 const RegisterPage = (): ReactElement => {
+  const navigate = useNavigate();
+  const securityContext = useSecurity();
+
   const [serverErrors, setServerErrors] = useState(initialState.serverErrors);
 
-  const handleSubmit = (formData: RegisterFormValues): void => console.log(formData);
+  const handleServerValidationErrors = (errors: ServerErrors): void => {
+    setServerErrors({
+      ...initialState.serverErrors,
+      first_name: errors.first_name || '',
+      last_name: errors.last_name || '',
+      email_address: errors.email_address || '',
+      password: errors.password || '',
+      confirm_password: errors.confirm_password || ''
+    });
+  };
+
+  const handleSubmit = async (formData: RegisterFormValues): Promise<void> => {
+    await securityContext
+      .register(formData)
+      .catch((error: unknown) => {
+        if (isApiFail(error)) {
+          return handleServerValidationErrors(error.body.data as ServerErrors);
+        }
+
+        if (isApiError(error)) {
+          notifications.error(error.body.message);
+        }
+      })
+      .finally(() => {
+        formik.setSubmitting(false);
+      });
+    navigate(Path.REGISTER);
+  };
 
   const validate = (formData: RegisterFormValues): void => console.log(formData);
 
@@ -64,6 +100,12 @@ const RegisterPage = (): ReactElement => {
     formik.handleBlur(event);
   };
 
+  const firstNameInputProps = form.getInputProps('first_name', formik, serverErrors);
+  const lastNameInputProps = form.getInputProps('last_name', formik, serverErrors);
+  const emailAddressInputProps = form.getInputProps('email_address', formik, serverErrors);
+  const passwordInputProps = form.getInputProps('password', formik, serverErrors);
+  const confirmPasswordInputProps = form.getInputProps('confirm_password', formik, serverErrors);
+
   return (
     <div className="container">
       <div className="row">
@@ -77,8 +119,8 @@ const RegisterPage = (): ReactElement => {
               label="First name"
               tabIndex={1}
               value={formik.values.first_name}
-              isValid={!(formik.touched.first_name && formik.errors.first_name)}
-              error={formik.touched.first_name && formik.errors.first_name ? formik.errors.first_name : undefined}
+              isValid={firstNameInputProps.isValid}
+              error={firstNameInputProps.errorMessage}
               required
               onChange={handleChange}
               onBlur={handleBlur}
@@ -91,8 +133,8 @@ const RegisterPage = (): ReactElement => {
               label="Last name"
               tabIndex={2}
               value={formik.values.last_name}
-              isValid={!(formik.touched.last_name && formik.errors.last_name)}
-              error={formik.touched.last_name && formik.errors.last_name ? formik.errors.last_name : undefined}
+              isValid={lastNameInputProps.isValid}
+              error={lastNameInputProps.errorMessage}
               required
               onChange={handleChange}
               onBlur={handleBlur}
@@ -105,10 +147,8 @@ const RegisterPage = (): ReactElement => {
               label="Email address"
               tabIndex={3}
               value={formik.values.email_address}
-              isValid={!(formik.touched.email_address && formik.errors.email_address)}
-              error={
-                formik.touched.email_address && formik.errors.email_address ? formik.errors.email_address : undefined
-              }
+              isValid={emailAddressInputProps.isValid}
+              error={emailAddressInputProps.errorMessage}
               required
               onChange={handleChange}
               onBlur={handleBlur}
@@ -121,8 +161,8 @@ const RegisterPage = (): ReactElement => {
               label="Password"
               tabIndex={4}
               value={formik.values.password}
-              isValid={!(formik.touched.password && formik.errors.password)}
-              error={formik.touched.password && formik.errors.password ? formik.errors.password : undefined}
+              isValid={passwordInputProps.isValid}
+              error={passwordInputProps.errorMessage}
               required
               onChange={handleChange}
               onBlur={handleBlur}
@@ -135,12 +175,8 @@ const RegisterPage = (): ReactElement => {
               label="Confirm password"
               tabIndex={5}
               value={formik.values.confirm_password}
-              isValid={!(formik.touched.confirm_password && formik.errors.confirm_password)}
-              error={
-                formik.touched.confirm_password && formik.errors.confirm_password
-                  ? formik.errors.confirm_password
-                  : undefined
-              }
+              isValid={confirmPasswordInputProps.isValid}
+              error={confirmPasswordInputProps.errorMessage}
               required
               onChange={handleChange}
               onBlur={handleBlur}
