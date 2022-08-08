@@ -29,6 +29,12 @@
       ],
       "@routes/*": [
         "routes/*"
+      ],
+      "@services/*": [
+        "services/*"
+      ],
+      "@stores/*": [
+        "stores/*"
       ]
     },
     "outDir": "../public/assets/",

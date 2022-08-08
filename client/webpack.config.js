@@ -52,7 +52,9 @@ module.exports = {
       '@components': path.resolve(__dirname, 'src/components'),
       '@domain': path.resolve(__dirname, 'src/domain'),
       '@pages': path.resolve(__dirname, 'src/pages'),
-      '@routes': path.resolve(__dirname, 'src/routes')
+      '@routes': path.resolve(__dirname, 'src/routes'),
+      '@services': path.resolve(__dirname, 'src/services'),
+      '@stores': path.resolve(__dirname, 'src/stores')
     }
   },
   output: {

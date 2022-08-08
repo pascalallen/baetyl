@@ -1,4 +1,4 @@
-import React, { FocusEvent, ChangeEvent, ReactElement } from 'react';
+import React, { FocusEvent, ChangeEvent, ReactElement, useState } from 'react';
 import { useFormik } from 'formik';
 import Button from '@components/blocks/buttons/Button';
 import Form from '@components/blocks/forms/Form';
@@ -20,7 +20,31 @@ const initialFormValues: RegisterFormValues = {
   confirm_password: ''
 };
 
+type ServerErrors = {
+  first_name: string;
+  last_name: string;
+  email_address: string;
+  password: string;
+  confirm_password: string;
+};
+
+type State = {
+  serverErrors: ServerErrors;
+};
+
+const initialState: State = {
+  serverErrors: {
+    first_name: '',
+    last_name: '',
+    email_address: '',
+    password: '',
+    confirm_password: ''
+  }
+};
+
 const RegisterPage = (): ReactElement => {
+  const [serverErrors, setServerErrors] = useState(initialState.serverErrors);
+
   const handleSubmit = (formData: RegisterFormValues): void => console.log(formData);
 
   const validate = (formData: RegisterFormValues): void => console.log(formData);
@@ -35,7 +59,10 @@ const RegisterPage = (): ReactElement => {
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>): void => formik.handleChange(event);
 
-  const handleBlur = (event: FocusEvent<HTMLInputElement>): void => formik.handleBlur(event);
+  const handleBlur = (event: FocusEvent<HTMLInputElement>): void => {
+    setServerErrors(initialState.serverErrors);
+    formik.handleBlur(event);
+  };
 
   return (
     <div className="container">

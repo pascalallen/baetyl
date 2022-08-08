@@ -64,6 +64,16 @@
             "position": "after"
           },
           {
+            "pattern": "@stores/**",
+            "group": "internal",
+            "position": "after"
+          },
+          {
+            "pattern": "@services/**",
+            "group": "internal",
+            "position": "after"
+          },
+          {
             "pattern": "@assets/**",
             "group": "internal",
             "position": "after"
