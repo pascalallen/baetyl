@@ -48,6 +48,11 @@ const initialState: State = {
   }
 };
 
+// TODO: extract
+type FormErrors = {
+  [fieldName: string]: string;
+};
+
 const RegisterPage = (): ReactElement => {
   const navigate = useNavigate();
   const securityContext = useSecurity();
@@ -83,7 +88,38 @@ const RegisterPage = (): ReactElement => {
     navigate(Path.REGISTER);
   };
 
-  const validate = (formData: RegisterFormValues): void => console.log(formData);
+  const validate = (formData: RegisterFormValues): FormErrors => {
+    const errors: FormErrors = {};
+    if (!formData.first_name) {
+      errors.first_name = 'First name is required';
+    } else if (formData.first_name.length < 3 || formData.first_name.length > 255) {
+      errors.first_name = 'First name must have a length between 3 and 255 characters';
+    }
+
+    if (!formData.last_name) {
+      errors.last_name = 'Last name is required';
+    } else if (formData.first_name.length < 3 && formData.first_name.length > 255) {
+      errors.last_name = 'Last name must have a length between 3 and 255 characters';
+    }
+
+    if (!formData.email_address) {
+      errors.email_address = 'Email address is required';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email_address)) {
+      errors.email_address = 'Email address must be a valid email';
+    }
+
+    if (!formData.password) {
+      errors.password = 'Password is required';
+    }
+
+    if (!formData.confirm_password) {
+      errors.confirm_password = 'Password confirmation is required';
+    } else if (formData.confirm_password != formData.password) {
+      errors.confirm_password = 'Passwords must match';
+    }
+
+    return errors;
+  };
 
   const formik = useFormik({
     initialValues: initialFormValues,
