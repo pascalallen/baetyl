@@ -29,8 +29,7 @@ func init() {
 		panic("failed to connect database")
 	}
 
-	err = db.AutoMigrate(&Permission.Permission{}, &Role.Role{}, &User.User{})
-	if err != nil {
+	if err := db.AutoMigrate(&Permission.Permission{}, &Role.Role{}, &User.User{}); err != nil {
 		panic("failed to migrate database")
 	}
 }
