@@ -14,8 +14,7 @@ type Role struct {
 	ModifiedAt  time.Time               `json:"modified_at"`
 }
 
-func Define(name string) *Role {
-	id := ulid.Make()
+func Define(id ulid.ULID, name string) *Role {
 	createdAt := time.Now()
 
 	return &Role{

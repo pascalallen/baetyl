@@ -21,8 +21,7 @@ type User struct {
 	DeletedAt time.Time `json:"deleted_at" gorm:"default:null"`
 }
 
-func Register(firstName string, lastName string, emailAddress string) *User {
-	id := ulid.Make()
+func Register(id ulid.ULID, firstName string, lastName string, emailAddress string) *User {
 	createdAt := time.Now()
 
 	return &User{

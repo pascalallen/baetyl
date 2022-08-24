@@ -13,8 +13,7 @@ type Permission struct {
 	ModifiedAt  time.Time `json:"modified_at"`
 }
 
-func Define(name string, description string) *Permission {
-	id := ulid.Make()
+func Define(id ulid.ULID, name string, description string) *Permission {
 	createdAt := time.Now()
 
 	return &Permission{

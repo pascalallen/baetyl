@@ -26,6 +26,9 @@ services:
       - .:/app:rw,cached
     depends_on:
       - baetyl-postgres
+    deploy:
+      restart_policy:
+        condition: on-failure
     networks:
       baetyl:
         aliases:

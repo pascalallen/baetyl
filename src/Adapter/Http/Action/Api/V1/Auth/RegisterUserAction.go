@@ -3,6 +3,7 @@ package Auth
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/oklog/ulid/v2"
 	RegisterUserResponder "github.com/pascalallen/Baetyl/src/Adapter/Http/Responder/Api/V1/Auth"
 	GormUserRepository "github.com/pascalallen/Baetyl/src/Adapter/Repository/Auth/User"
 	UserValidations "github.com/pascalallen/Baetyl/src/Adapter/Validation/Auth/User"
@@ -26,7 +27,8 @@ func Handle(c *gin.Context) {
 		return
 	}
 
-	user := User.Register(request.FirstName, request.LastName, request.EmailAddress)
+	id := ulid.Make()
+	user := User.Register(id, request.FirstName, request.LastName, request.EmailAddress)
 	passwordHash := PasswordHash.Create(request.Password)
 	user.SetPasswordHash(passwordHash)
 

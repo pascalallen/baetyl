@@ -72,7 +72,6 @@ func (repository GormPermissionRepository) GetAll() (*[]Permission.Permission, e
 	}
 
 	var permissions *[]Permission.Permission
-
 	if err := db.Find(&permissions).Error; err != nil {
 		return nil, fmt.Errorf("failed to get all permissions, error: %s", err.Error())
 	}

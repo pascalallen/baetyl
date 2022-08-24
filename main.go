@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	_ "github.com/joho/godotenv/autoload"
+	"github.com/pascalallen/Baetyl/src/Adapter/Database"
 	RegisterUserAction "github.com/pascalallen/Baetyl/src/Adapter/Http/Action/Api/V1/Auth"
 	"github.com/pascalallen/Baetyl/src/Domain/Auth/Permission"
 	"github.com/pascalallen/Baetyl/src/Domain/Auth/Role"
@@ -31,6 +32,12 @@ func init() {
 
 	if err := db.AutoMigrate(&Permission.Permission{}, &Role.Role{}, &User.User{}); err != nil {
 		panic("failed to migrate database")
+	}
+
+	// temp for debugging
+	dataSeeder := Database.DataSeeder{}
+	if err := dataSeeder.Seed(); err != nil {
+		panic(err.Error())
 	}
 }
 
