@@ -7,7 +7,7 @@ import (
 )
 
 type Role struct {
-	Id          ulid.ULID               `json:"id" gorm:"primaryKey"`
+	Id          ulid.ULID               `json:"id" gorm:"primaryKey;size:26;not null"`
 	Name        string                  `json:"name"`
 	Permissions []Permission.Permission `json:"permissions,omitempty" gorm:"many2many:role_permissions"`
 	CreatedAt   time.Time               `json:"created_at"`

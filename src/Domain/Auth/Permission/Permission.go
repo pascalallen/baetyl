@@ -6,7 +6,7 @@ import (
 )
 
 type Permission struct {
-	Id          ulid.ULID `json:"id" gorm:"primaryKey"`
+	Id          ulid.ULID `json:"id" gorm:"primaryKey;size:26;not null"`
 	Name        string    `json:"name"`
 	Description string    `json:"description"`
 	CreatedAt   time.Time `json:"created_at"`
