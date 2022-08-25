@@ -20,10 +20,12 @@ type DataSeeder struct {
 	rolesMap       map[string]Role.Role
 }
 
-type PermissionData struct {
-	id          ulid.ULID
-	name        string
-	description string
+type PermissionsData struct {
+	Permissions []struct {
+		Id          string `json:"id"`
+		Name        string `json:"name"`
+		Description string `json:"description"`
+	} `json:"permissions"`
 }
 
 func (dataSeeder *DataSeeder) Seed() error {
@@ -58,27 +60,24 @@ func (dataSeeder *DataSeeder) seedPermissions() error {
 		return fmt.Errorf("error reading permissions file: %s", err.Error())
 	}
 
-	var permissionsData map[string][]PermissionData
+	var permissionsData PermissionsData
 	if err := json.Unmarshal(contents, &permissionsData); err != nil {
 		return fmt.Errorf("error parsing permissions json: %s", err.Error())
 	}
 
-	// TODO: determine why permissionsData is not being populated
-	log.Printf("PERMISSIONS DATA: %v", permissionsData)
-
-	var currentPermissions map[string]string
+	var currentPermissions []string
 	for permissionName := range dataSeeder.permissionsMap {
-		currentPermissions[permissionName] = permissionName
+		currentPermissions = append(currentPermissions, permissionName)
 	}
 
 	var seedPermissions []string
-	for _, permissionData := range permissionsData["permissions"] {
-		seedPermissions = append(seedPermissions, permissionData.name)
+	for _, permissionData := range permissionsData.Permissions {
+		seedPermissions = append(seedPermissions, permissionData.Name)
 	}
 
 	var permissionsToRemove []string
 	for _, permissionName := range seedPermissions {
-		if permissionName != currentPermissions[permissionName] {
+		if len(currentPermissions) > 0 && !contains(currentPermissions, permissionName) {
 			permissionsToRemove = append(permissionsToRemove, permissionName)
 		}
 	}
@@ -91,25 +90,25 @@ func (dataSeeder *DataSeeder) seedPermissions() error {
 		}
 	}
 
-	for _, permissionData := range permissionsData["permissions"] {
-		permission, err := permissionRepository.GetById(permissionData.id)
+	for _, permissionData := range permissionsData.Permissions {
+		permission, err := permissionRepository.GetById(ulid.MustParse(permissionData.Id))
 		if err != nil {
 			return err
 		}
 
 		if permission == nil {
-			permission := Permission.Define(permissionData.id, permissionData.name, permissionData.description)
+			permission := Permission.Define(ulid.MustParse(permissionData.Id), permissionData.Name, permissionData.Description)
 			if err := permissionRepository.Add(permission); err != nil {
 				return err
 			}
 		}
 
-		if permissionData.name != permission.Name {
-			permission.UpdateName(permissionData.name)
+		if permissionData.Name != permission.Name {
+			permission.UpdateName(permissionData.Name)
 		}
 
-		if permissionData.description != permission.Description {
-			permission.UpdateDescription(permissionData.description)
+		if permissionData.Description != permission.Description {
+			permission.UpdateDescription(permissionData.Description)
 		}
 	}
 
@@ -176,4 +175,13 @@ func (dataSeeder *DataSeeder) loadRolesMap() error {
 	}
 
 	return nil
+}
+
+func contains(elems []string, v string) bool {
+	for _, s := range elems {
+		if v == s {
+			return true
+		}
+	}
+	return false
 }

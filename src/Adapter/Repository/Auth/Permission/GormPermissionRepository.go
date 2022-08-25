@@ -27,7 +27,7 @@ func (repository GormPermissionRepository) GetById(id ulid.ULID) (*Permission.Pe
 	}
 
 	var permission *Permission.Permission
-	if err := db.First(&permission, id).Error; errors.Is(err, gorm.ErrRecordNotFound) {
+	if err := db.First(permission, id).Error; errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, nil
 	}
 
