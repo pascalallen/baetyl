@@ -2,22 +2,23 @@ package Permission
 
 import (
 	"github.com/oklog/ulid/v2"
+	"github.com/pascalallen/Baetyl/src/Adapter/Database/Type"
 	"time"
 )
 
 type Permission struct {
-	Id          ulid.ULID `json:"id" gorm:"primaryKey;size:26;not null"`
-	Name        string    `json:"name"`
-	Description string    `json:"description"`
-	CreatedAt   time.Time `json:"created_at"`
-	ModifiedAt  time.Time `json:"modified_at"`
+	Id          Type.GormUlid `json:"id" gorm:"primaryKey;size:26;not null"`
+	Name        string        `json:"name"`
+	Description string        `json:"description"`
+	CreatedAt   time.Time     `json:"created_at"`
+	ModifiedAt  time.Time     `json:"modified_at"`
 }
 
 func Define(id ulid.ULID, name string, description string) *Permission {
 	createdAt := time.Now()
 
 	return &Permission{
-		Id:          id,
+		Id:          Type.GormUlid(id),
 		Name:        name,
 		Description: description,
 		CreatedAt:   createdAt,

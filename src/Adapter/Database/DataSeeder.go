@@ -20,12 +20,14 @@ type DataSeeder struct {
 	rolesMap       map[string]Role.Role
 }
 
+type PermissionData struct {
+	Id          string `json:"id"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+}
+
 type PermissionsData struct {
-	Permissions []struct {
-		Id          string `json:"id"`
-		Name        string `json:"name"`
-		Description string `json:"description"`
-	} `json:"permissions"`
+	Permissions []PermissionData `json:"permissions"`
 }
 
 func (dataSeeder *DataSeeder) Seed() error {
@@ -91,25 +93,30 @@ func (dataSeeder *DataSeeder) seedPermissions() error {
 	}
 
 	for _, permissionData := range permissionsData.Permissions {
-		permission, err := permissionRepository.GetById(ulid.MustParse(permissionData.Id))
+		id := ulid.MustParse(permissionData.Id)
+
+		permission, err := permissionRepository.GetById(id)
 		if err != nil {
 			return err
 		}
 
+		log.Printf("EXISTING PERMISSION: %s", permission)
+
 		if permission == nil {
-			permission := Permission.Define(ulid.MustParse(permissionData.Id), permissionData.Name, permissionData.Description)
-			if err := permissionRepository.Add(permission); err != nil {
-				return err
-			}
+			permission := Permission.Define(id, permissionData.Name, permissionData.Description)
+			log.Printf("PERMISSION TO ADD: %s", permission)
+			//if err := permissionRepository.Add(permission); err != nil {
+			//	return err
+			//}
 		}
 
-		if permissionData.Name != permission.Name {
-			permission.UpdateName(permissionData.Name)
-		}
+		//if permissionData.Name != permission.Name {
+		//	permission.UpdateName(permissionData.Name)
+		//}
 
-		if permissionData.Description != permission.Description {
-			permission.UpdateDescription(permissionData.Description)
-		}
+		//if permissionData.Description != permission.Description {
+		//	permission.UpdateDescription(permissionData.Description)
+		//}
 	}
 
 	if err := dataSeeder.loadPermissionsMap(); err != nil {
