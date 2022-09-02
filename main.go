@@ -3,32 +3,10 @@ package main
 import (
 	"github.com/gin-gonic/gin"
 	_ "github.com/joho/godotenv/autoload"
-	"github.com/pascalallen/Baetyl/src/Adapter/Database"
 	RegisterUserAction "github.com/pascalallen/Baetyl/src/Adapter/Http/Action/Api/V1/Auth"
-	"github.com/pascalallen/Baetyl/src/Domain/Auth/Permission"
-	"github.com/pascalallen/Baetyl/src/Domain/Auth/Role"
-	"github.com/pascalallen/Baetyl/src/Domain/Auth/User"
 	"log"
 	"net/http"
 )
-
-func init() {
-	unitOfWork := Database.GormUnitOfWork{}
-	if err := unitOfWork.InitDbSession(); err != nil {
-		panic(err.Error())
-	}
-
-	db := unitOfWork.DatabaseSession
-	if err := db.AutoMigrate(&Permission.Permission{}, &Role.Role{}, &User.User{}); err != nil {
-		panic("failed to migrate database")
-	}
-
-	// temp for debugging
-	dataSeeder := Database.DataSeeder{}
-	if err := dataSeeder.Seed(); err != nil {
-		panic(err.Error())
-	}
-}
 
 func main() {
 	router := gin.Default()
