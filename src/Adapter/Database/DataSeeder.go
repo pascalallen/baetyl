@@ -164,7 +164,6 @@ func (dataSeeder *DataSeeder) loadRolesMap() error {
 	return nil
 }
 
-// TODO: Extract
 func contains(elems []string, v string) bool {
 	for _, s := range elems {
 		if v == s {
