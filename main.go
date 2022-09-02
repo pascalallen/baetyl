@@ -14,19 +14,30 @@ import (
 
 func main() {
 	connStr := fmt.Sprintf(
-		"dbname=%s user=%s password=%s host=%s port=%s",
+		"dbname=%s user=%s password=%s host=%s port=%s sslmode=disable",
 		os.Getenv("DB_NAME"),
 		os.Getenv("DB_USER"),
 		os.Getenv("DB_PASSWORD"),
 		os.Getenv("DB_HOST"),
 		os.Getenv("DB_PORT"),
 	)
+
 	db, err := sql.Open("postgres", connStr)
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
 
-	log.Print(db)
+	err = db.Ping()
+	if err != nil {
+		panic(err)
+	}
+
+	err = db.Close()
+	if err != nil {
+		panic(err)
+	}
+
+	log.Print("database connection successful!")
 
 	router := gin.Default()
 	router.LoadHTMLGlob("templates/*")
