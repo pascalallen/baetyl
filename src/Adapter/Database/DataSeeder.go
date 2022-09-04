@@ -4,8 +4,12 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/oklog/ulid/v2"
+	GormPermissionRepository "github.com/pascalallen/Baetyl/src/Adapter/Repository/Auth/Permission"
+	GormRoleRepository "github.com/pascalallen/Baetyl/src/Adapter/Repository/Auth/Role"
 	"github.com/pascalallen/Baetyl/src/Domain/Auth/Permission"
 	"github.com/pascalallen/Baetyl/src/Domain/Auth/Role"
+	"log"
 	"os"
 	"path"
 	"runtime"
@@ -24,16 +28,6 @@ type PermissionData struct {
 
 type PermissionsData struct {
 	Permissions []PermissionData `json:"permissions"`
-}
-
-type RoleData struct {
-	Id          string   `json:"id"`
-	Name        string   `json:"name"`
-	Permissions []string `json:"permissions"`
-}
-
-type RolesData struct {
-	Roles []RoleData `json:"roles"`
 }
 
 func (dataSeeder *DataSeeder) Seed() error {
@@ -90,7 +84,39 @@ func (dataSeeder *DataSeeder) seedPermissions() error {
 		}
 	}
 
-	// TODO: Remove/add permissions when permission repository is implemented
+	permissionRepository := GormPermissionRepository.GormPermissionRepository{}
+	for _, permissionName := range permissionsToRemove {
+		permission := dataSeeder.permissionsMap[permissionName]
+		if err := permissionRepository.Remove(&permission); err != nil {
+			return err
+		}
+	}
+
+	for _, permissionData := range permissionsData.Permissions {
+		id := ulid.MustParse(permissionData.Id)
+
+		permission, err := permissionRepository.GetById(id)
+		if err != nil {
+			return err
+		}
+
+		if permission == nil {
+			permission := *Permission.Define(id, permissionData.Name, permissionData.Description)
+			if err := permissionRepository.Add(&permission); err != nil {
+				return err
+			}
+		}
+
+		if permissionData.Name != permission.Name {
+			permission.UpdateName(permissionData.Name)
+		}
+
+		if permissionData.Description != permission.Description {
+			permission.UpdateDescription(permissionData.Description)
+		}
+
+		// TODO: Commit db transaction after updating permissions
+	}
 
 	if err := dataSeeder.loadPermissionsMap(); err != nil {
 		return err
@@ -117,33 +143,8 @@ func (dataSeeder *DataSeeder) seedRoles() error {
 		return fmt.Errorf("error reading roles file: %s", err.Error())
 	}
 
-	var rolesData RolesData
-	if err := json.Unmarshal(contents, &rolesData); err != nil {
-		return fmt.Errorf("error parsing roles json: %s", err.Error())
-	}
-
-	var currentRoles []string
-	for roleName := range dataSeeder.rolesMap {
-		currentRoles = append(currentRoles, roleName)
-	}
-
-	var seedRoles []string
-	for _, roleData := range rolesData.Roles {
-		seedRoles = append(seedRoles, roleData.Name)
-	}
-
-	var rolesToRemove []string
-	for _, roleName := range seedRoles {
-		if len(currentRoles) > 0 && !contains(currentRoles, roleName) {
-			rolesToRemove = append(rolesToRemove, roleName)
-		}
-	}
-
-	// TODO: Remove/add roles when role repository is implemented
-
-	if err := dataSeeder.loadRolesMap(); err != nil {
-		return err
-	}
+	// TODO
+	log.Printf("ROLES FILE CONTENTS: %s", contents)
 
 	return nil
 }
@@ -153,13 +154,31 @@ func (dataSeeder *DataSeeder) seedUsers() {
 }
 
 func (dataSeeder *DataSeeder) loadPermissionsMap() error {
-	// TODO: Fetch all permissions and make a hash map where permission name is the key, when permission repository is implemented
+	permissionRepository := GormPermissionRepository.GormPermissionRepository{}
+	permissions, err := permissionRepository.GetAll()
+	if err != nil {
+		return err
+	}
+
+	m := make(map[string]Permission.Permission)
+	for _, p := range *permissions {
+		m[p.Name] = p
+	}
 
 	return nil
 }
 
 func (dataSeeder *DataSeeder) loadRolesMap() error {
-	// TODO: Fetch all roles and make a hash map where role name is the key, when role repository is implemented
+	roleRepository := GormRoleRepository.GormRoleRepository{}
+	roles, err := roleRepository.GetAll()
+	if err != nil {
+		return err
+	}
+
+	m := make(map[string]Role.Role)
+	for _, r := range *roles {
+		m[r.Name] = r
+	}
 
 	return nil
 }

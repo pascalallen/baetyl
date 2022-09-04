@@ -1,44 +1,47 @@
 package main
 
 import (
-	"database/sql"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	_ "github.com/joho/godotenv/autoload"
-	_ "github.com/lib/pq"
+	"github.com/pascalallen/Baetyl/src/Adapter/Database"
 	RegisterUserAction "github.com/pascalallen/Baetyl/src/Adapter/Http/Action/Api/V1/Auth"
+	"github.com/pascalallen/Baetyl/src/Domain/Auth/Permission"
+	"github.com/pascalallen/Baetyl/src/Domain/Auth/Role"
+	"github.com/pascalallen/Baetyl/src/Domain/Auth/User"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 	"log"
 	"net/http"
 	"os"
 )
 
-func main() {
-	connStr := fmt.Sprintf(
-		"dbname=%s user=%s password=%s host=%s port=%s sslmode=disable",
-		os.Getenv("DB_NAME"),
+func init() {
+	dsn := fmt.Sprintf(
+		"host=%s user=%s password=%s dbname=%s port=%s",
+		os.Getenv("DB_HOST"),
 		os.Getenv("DB_USER"),
 		os.Getenv("DB_PASSWORD"),
-		os.Getenv("DB_HOST"),
+		os.Getenv("DB_NAME"),
 		os.Getenv("DB_PORT"),
 	)
-
-	db, err := sql.Open("postgres", connStr)
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
-		panic(err)
+		panic("failed to connect database")
 	}
 
-	err = db.Ping()
-	if err != nil {
-		panic(err)
+	if err := db.AutoMigrate(&Permission.Permission{}, &Role.Role{}, &User.User{}); err != nil {
+		panic("failed to migrate database")
 	}
 
-	err = db.Close()
-	if err != nil {
-		panic(err)
+	// temp for debugging
+	dataSeeder := Database.DataSeeder{}
+	if err := dataSeeder.Seed(); err != nil {
+		panic(err.Error())
 	}
+}
 
-	log.Print("database connection successful!")
-
+func main() {
 	router := gin.Default()
 	router.LoadHTMLGlob("templates/*")
 	router.Static("/public/assets", "./public/assets")

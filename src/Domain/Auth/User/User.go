@@ -9,16 +9,16 @@ import (
 )
 
 type User struct {
-	Id           ulid.ULID                 `json:"id"`
-	FirstName    string                    `json:"first_name"`
-	LastName     string                    `json:"last_name"`
-	EmailAddress string                    `json:"email_address"`
-	PasswordHash PasswordHash.PasswordHash `json:"-"`
-	Roles        []Role.Role               `json:"roles"`
-	CreatedAt    time.Time                 `json:"created_at"`
-	ModifiedAt   time.Time                 `json:"modified_at"`
+	Id           ulid.ULID                 `json:"id" gorm:"primaryKey;size:26;not null"`
+	FirstName    string                    `json:"first_name" gorm:"size:100;not null"`
+	LastName     string                    `json:"last_name" gorm:"size:100;not null"`
+	EmailAddress string                    `json:"email_address" gorm:"size:100;not null"`
+	PasswordHash PasswordHash.PasswordHash `json:"-" gorm:"column:password;size:255;default:null"`
+	Roles        []Role.Role               `json:"roles" gorm:"many2many:user_roles"`
+	CreatedAt    time.Time                 `json:"created_at" gorm:"not null"`
+	ModifiedAt   time.Time                 `json:"modified_at" gorm:"not null"`
 	// TODO: Determine how to make nullable/optional
-	DeletedAt time.Time `json:"deleted_at"`
+	DeletedAt time.Time `json:"deleted_at" gorm:"default:null"`
 }
 
 func Register(id ulid.ULID, firstName string, lastName string, emailAddress string) *User {
