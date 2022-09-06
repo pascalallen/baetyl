@@ -5,8 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/oklog/ulid/v2"
-	GormPermissionRepository "github.com/pascalallen/Baetyl/src/Adapter/Repository/Auth/Permission"
-	GormRoleRepository "github.com/pascalallen/Baetyl/src/Adapter/Repository/Auth/Role"
 	"github.com/pascalallen/Baetyl/src/Domain/Auth/Permission"
 	"github.com/pascalallen/Baetyl/src/Domain/Auth/Role"
 	"log"
@@ -16,8 +14,10 @@ import (
 )
 
 type DataSeeder struct {
-	permissionsMap map[string]Permission.Permission
-	rolesMap       map[string]Role.Role
+	permissionsMap       map[string]Permission.Permission
+	rolesMap             map[string]Role.Role
+	PermissionRepository Permission.PermissionRepository
+	RoleRepository       Role.RoleRepository
 }
 
 type PermissionData struct {
@@ -84,10 +84,9 @@ func (dataSeeder *DataSeeder) seedPermissions() error {
 		}
 	}
 
-	permissionRepository := GormPermissionRepository.GormPermissionRepository{}
 	for _, permissionName := range permissionsToRemove {
 		permission := dataSeeder.permissionsMap[permissionName]
-		if err := permissionRepository.Remove(&permission); err != nil {
+		if err := dataSeeder.PermissionRepository.Remove(&permission); err != nil {
 			return err
 		}
 	}
@@ -95,14 +94,14 @@ func (dataSeeder *DataSeeder) seedPermissions() error {
 	for _, permissionData := range permissionsData.Permissions {
 		id := ulid.MustParse(permissionData.Id)
 
-		permission, err := permissionRepository.GetById(id)
+		permission, err := dataSeeder.PermissionRepository.GetById(id)
 		if err != nil {
 			return err
 		}
 
 		if permission == nil {
 			permission := *Permission.Define(id, permissionData.Name, permissionData.Description)
-			if err := permissionRepository.Add(&permission); err != nil {
+			if err := dataSeeder.PermissionRepository.Add(&permission); err != nil {
 				return err
 			}
 		}
@@ -154,8 +153,7 @@ func (dataSeeder *DataSeeder) seedUsers() {
 }
 
 func (dataSeeder *DataSeeder) loadPermissionsMap() error {
-	permissionRepository := GormPermissionRepository.GormPermissionRepository{}
-	permissions, err := permissionRepository.GetAll()
+	permissions, err := dataSeeder.PermissionRepository.GetAll()
 	if err != nil {
 		return err
 	}
@@ -169,8 +167,7 @@ func (dataSeeder *DataSeeder) loadPermissionsMap() error {
 }
 
 func (dataSeeder *DataSeeder) loadRolesMap() error {
-	roleRepository := GormRoleRepository.GormRoleRepository{}
-	roles, err := roleRepository.GetAll()
+	roles, err := dataSeeder.RoleRepository.GetAll()
 	if err != nil {
 		return err
 	}

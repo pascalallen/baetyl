@@ -6,6 +6,8 @@ import (
 	_ "github.com/joho/godotenv/autoload"
 	"github.com/pascalallen/Baetyl/src/Adapter/Database"
 	RegisterUserAction "github.com/pascalallen/Baetyl/src/Adapter/Http/Action/Api/V1/Auth"
+	Permission2 "github.com/pascalallen/Baetyl/src/Adapter/Repository/Auth/Permission"
+	Role2 "github.com/pascalallen/Baetyl/src/Adapter/Repository/Auth/Role"
 	"github.com/pascalallen/Baetyl/src/Domain/Auth/Permission"
 	"github.com/pascalallen/Baetyl/src/Domain/Auth/Role"
 	"github.com/pascalallen/Baetyl/src/Domain/Auth/User"
@@ -35,7 +37,12 @@ func init() {
 	}
 
 	// temp for debugging
-	dataSeeder := Database.DataSeeder{}
+	var permissionRepository Permission.PermissionRepository = Permission2.GormPermissionRepository{}
+	var roleRepository Role.RoleRepository = Role2.GormRoleRepository{}
+	dataSeeder := Database.DataSeeder{
+		PermissionRepository: permissionRepository,
+		RoleRepository:       roleRepository,
+	}
 	if err := dataSeeder.Seed(); err != nil {
 		panic(err.Error())
 	}

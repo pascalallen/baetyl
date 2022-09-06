@@ -3,10 +3,10 @@ package Permission
 import "github.com/oklog/ulid/v2"
 
 type PermissionRepository interface {
-	GetById(id ulid.ULID) *Permission
-	GetByName(name string) *Permission
+	GetById(id ulid.ULID) (*Permission, error)
+	GetByName(name string) (*Permission, error)
 	// TODO: Include pagination
-	GetAll() []*Permission
-	Add(permission *Permission)
-	Remove(permission *Permission)
+	GetAll() (*[]Permission, error)
+	Add(permission *Permission) error
+	Remove(permission *Permission) error
 }

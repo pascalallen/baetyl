@@ -3,10 +3,10 @@ package Role
 import "github.com/oklog/ulid/v2"
 
 type RoleRepository interface {
-	GetById(id ulid.ULID) *Role
-	GetByName(name string) *Role
+	GetById(id ulid.ULID) (*Role, error)
+	GetByName(name string) (*Role, error)
 	// TODO: Include pagination
-	GetAll() []*Role
-	Add(role *Role)
-	Remove(role *Role)
+	GetAll() (*[]Role, error)
+	Add(role *Role) error
+	Remove(role *Role) error
 }
