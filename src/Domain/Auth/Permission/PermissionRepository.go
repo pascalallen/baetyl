@@ -1,6 +1,8 @@
 package Permission
 
-import "github.com/oklog/ulid/v2"
+import (
+	"github.com/oklog/ulid/v2"
+)
 
 type PermissionRepository interface {
 	GetById(id ulid.ULID) (*Permission, error)
@@ -9,4 +11,5 @@ type PermissionRepository interface {
 	GetAll() (*[]Permission, error)
 	Add(permission *Permission) error
 	Remove(permission *Permission) error
+	Save(permission *Permission) error
 }

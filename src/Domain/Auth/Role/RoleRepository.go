@@ -9,4 +9,5 @@ type RoleRepository interface {
 	GetAll() (*[]Role, error)
 	Add(role *Role) error
 	Remove(role *Role) error
+	Save(role *Role) error
 }

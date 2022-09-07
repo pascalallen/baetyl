@@ -114,7 +114,9 @@ func (dataSeeder *DataSeeder) seedPermissions() error {
 			permission.UpdateDescription(permissionData.Description)
 		}
 
-		// TODO: Commit db transaction after updating permissions
+		if err := dataSeeder.PermissionRepository.Save(permission); err != nil {
+			return err
+		}
 	}
 
 	if err := dataSeeder.loadPermissionsMap(); err != nil {

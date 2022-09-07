@@ -37,8 +37,12 @@ func init() {
 	}
 
 	// temp for debugging
-	var permissionRepository Permission.PermissionRepository = Permission2.GormPermissionRepository{}
-	var roleRepository Role.RoleRepository = Role2.GormRoleRepository{}
+	var permissionRepository Permission.PermissionRepository = Permission2.GormPermissionRepository{
+		DatabaseConnection: db,
+	}
+	var roleRepository Role.RoleRepository = Role2.GormRoleRepository{
+		DatabaseConnection: db,
+	}
 	dataSeeder := Database.DataSeeder{
 		PermissionRepository: permissionRepository,
 		RoleRepository:       roleRepository,
