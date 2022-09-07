@@ -37,7 +37,6 @@ func init() {
 		panic("failed to migrate database")
 	}
 
-	// temp for debugging
 	var permissionRepository Permission.PermissionRepository = GormPermissionRepository.GormPermissionRepository{
 		DatabaseConnection: db,
 	}
