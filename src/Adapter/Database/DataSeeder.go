@@ -7,7 +7,6 @@ import (
 	"github.com/oklog/ulid/v2"
 	"github.com/pascalallen/Baetyl/src/Domain/Auth/Permission"
 	"github.com/pascalallen/Baetyl/src/Domain/Auth/Role"
-	"log"
 	"os"
 	"path"
 	"runtime"
@@ -28,6 +27,16 @@ type PermissionData struct {
 
 type PermissionsData struct {
 	Permissions []PermissionData `json:"permissions"`
+}
+
+type RoleData struct {
+	Id          string   `json:"id"`
+	Name        string   `json:"name"`
+	Permissions []string `json:"description"`
+}
+
+type RolesData struct {
+	Roles []RoleData `json:"roles"`
 }
 
 func (dataSeeder *DataSeeder) Seed() error {
@@ -144,8 +153,64 @@ func (dataSeeder *DataSeeder) seedRoles() error {
 		return fmt.Errorf("error reading roles file: %s", err.Error())
 	}
 
-	// TODO
-	log.Printf("ROLES FILE CONTENTS: %s", contents)
+	var rolesData RolesData
+	if err := json.Unmarshal(contents, &rolesData); err != nil {
+		return fmt.Errorf("error parsing roles json: %s", err.Error())
+	}
+
+	var currentRoles []string
+	for roleName := range dataSeeder.rolesMap {
+		currentRoles = append(currentRoles, roleName)
+	}
+
+	var seedRoles []string
+	for _, roleData := range rolesData.Roles {
+		seedRoles = append(seedRoles, roleData.Name)
+	}
+
+	var rolesToRemove []string
+	for _, roleName := range seedRoles {
+		if len(currentRoles) > 0 && !contains(currentRoles, roleName) {
+			rolesToRemove = append(rolesToRemove, roleName)
+		}
+	}
+
+	for _, roleName := range rolesToRemove {
+		role := dataSeeder.rolesMap[roleName]
+		if err := dataSeeder.RoleRepository.Remove(&role); err != nil {
+			return err
+		}
+	}
+
+	for _, roleData := range rolesData.Roles {
+		id := ulid.MustParse(roleData.Id)
+
+		role, err := dataSeeder.RoleRepository.GetById(id)
+		if err != nil {
+			return err
+		}
+
+		if role == nil {
+			role := *Role.Define(id, roleData.Name)
+			if err := dataSeeder.RoleRepository.Add(&role); err != nil {
+				return err
+			}
+		}
+
+		if roleData.Name != role.Name {
+			role.UpdateName(roleData.Name)
+		}
+
+		// TODO: Add/remove role permissions
+
+		if err := dataSeeder.RoleRepository.Save(role); err != nil {
+			return err
+		}
+	}
+
+	if err := dataSeeder.loadRolesMap(); err != nil {
+		return err
+	}
 
 	return nil
 }
