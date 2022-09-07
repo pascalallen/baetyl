@@ -7,6 +7,7 @@ import (
 	"github.com/oklog/ulid/v2"
 	"github.com/pascalallen/Baetyl/src/Domain/Auth/Permission"
 	"github.com/pascalallen/Baetyl/src/Domain/Auth/Role"
+	"github.com/pascalallen/Baetyl/src/Domain/Auth/User"
 	"gorm.io/gorm"
 	"os"
 	"path"
@@ -19,6 +20,7 @@ type DataSeeder struct {
 	DatabaseConnection   *gorm.DB
 	PermissionRepository Permission.PermissionRepository
 	RoleRepository       Role.RoleRepository
+	UserRepository       User.UserRepository
 }
 
 type PermissionData struct {
@@ -41,6 +43,18 @@ type RolesData struct {
 	Roles []RoleData `json:"roles"`
 }
 
+type UserData struct {
+	Id           string   `json:"id"`
+	FirstName    string   `json:"first_name"`
+	LastName     string   `json:"last_name"`
+	EmailAddress string   `json:"email_address"`
+	Roles        []string `json:"roles"`
+}
+
+type UsersData struct {
+	Users []UserData `json:"users"`
+}
+
 func (dataSeeder *DataSeeder) Seed() error {
 	if err := dataSeeder.seedPermissions(); err != nil {
 		return err
@@ -50,7 +64,9 @@ func (dataSeeder *DataSeeder) Seed() error {
 		return err
 	}
 
-	dataSeeder.seedUsers()
+	if err := dataSeeder.seedUsers(); err != nil {
+		return err
+	}
 
 	return nil
 }
@@ -242,8 +258,89 @@ func (dataSeeder *DataSeeder) seedRoles() error {
 	return nil
 }
 
-func (dataSeeder *DataSeeder) seedUsers() {
-	// TODO
+func (dataSeeder *DataSeeder) seedUsers() error {
+	_, filename, _, ok := runtime.Caller(2)
+	if !ok {
+		return errors.New("error getting filename")
+	}
+
+	rootDir := path.Dir(filename)
+	usersFile := fmt.Sprintf("%s/database/seeds/auth.users.json", rootDir)
+
+	contents, err := os.ReadFile(usersFile)
+	if err != nil {
+		return fmt.Errorf("error reading users file: %s", err.Error())
+	}
+
+	var usersData UsersData
+	if err := json.Unmarshal(contents, &usersData); err != nil {
+		return fmt.Errorf("error parsing users json: %s", err.Error())
+	}
+
+	for _, userData := range usersData.Users {
+		user, err := dataSeeder.UserRepository.GetByEmailAddress(userData.EmailAddress)
+		if err != nil {
+			return err
+		}
+
+		if user == nil {
+			id := ulid.MustParse(userData.Id)
+			user = User.Register(
+				id,
+				userData.FirstName,
+				userData.LastName,
+				userData.EmailAddress,
+			)
+			if len(userData.Roles) > 0 {
+				for _, roleName := range userData.Roles {
+					role, err := dataSeeder.RoleRepository.GetByName(roleName)
+					if err != nil {
+						return err
+					}
+
+					if role != nil && !user.HasRole(roleName) {
+						user.AddRole(*role)
+					}
+				}
+			}
+
+			if err := dataSeeder.UserRepository.Add(user); err != nil {
+				return err
+			}
+		}
+
+		if userData.FirstName != user.FirstName {
+			user.UpdateFirstName(userData.FirstName)
+		}
+
+		if userData.LastName != user.LastName {
+			user.UpdateLastName(userData.LastName)
+		}
+
+		if userData.EmailAddress != user.EmailAddress {
+			user.UpdateEmailAddress(userData.EmailAddress)
+		}
+
+		var newUserRoles []Role.Role
+		for _, roleName := range userData.Roles {
+			role, err := dataSeeder.RoleRepository.GetByName(roleName)
+			if err != nil {
+				return err
+			}
+
+			newUserRoles = append(newUserRoles, *role)
+		}
+
+		if err := dataSeeder.DatabaseConnection.Model(&user).Association("Roles").Replace(newUserRoles); err != nil {
+			return err
+		}
+
+		if err := dataSeeder.UserRepository.Save(user); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func (dataSeeder *DataSeeder) loadPermissionsMap() error {

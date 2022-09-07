@@ -6,8 +6,9 @@ import (
 	_ "github.com/joho/godotenv/autoload"
 	"github.com/pascalallen/Baetyl/src/Adapter/Database"
 	RegisterUserAction "github.com/pascalallen/Baetyl/src/Adapter/Http/Action/Api/V1/Auth"
-	Permission2 "github.com/pascalallen/Baetyl/src/Adapter/Repository/Auth/Permission"
-	Role2 "github.com/pascalallen/Baetyl/src/Adapter/Repository/Auth/Role"
+	GormPermissionRepository "github.com/pascalallen/Baetyl/src/Adapter/Repository/Auth/Permission"
+	GormRoleRepository "github.com/pascalallen/Baetyl/src/Adapter/Repository/Auth/Role"
+	GormUserRepository "github.com/pascalallen/Baetyl/src/Adapter/Repository/Auth/User"
 	"github.com/pascalallen/Baetyl/src/Domain/Auth/Permission"
 	"github.com/pascalallen/Baetyl/src/Domain/Auth/Role"
 	"github.com/pascalallen/Baetyl/src/Domain/Auth/User"
@@ -37,16 +38,20 @@ func init() {
 	}
 
 	// temp for debugging
-	var permissionRepository Permission.PermissionRepository = Permission2.GormPermissionRepository{
+	var permissionRepository Permission.PermissionRepository = GormPermissionRepository.GormPermissionRepository{
 		DatabaseConnection: db,
 	}
-	var roleRepository Role.RoleRepository = Role2.GormRoleRepository{
+	var roleRepository Role.RoleRepository = GormRoleRepository.GormRoleRepository{
+		DatabaseConnection: db,
+	}
+	var userRepository User.UserRepository = GormUserRepository.GormUserRepository{
 		DatabaseConnection: db,
 	}
 	dataSeeder := Database.DataSeeder{
 		DatabaseConnection:   db,
 		PermissionRepository: permissionRepository,
 		RoleRepository:       roleRepository,
+		UserRepository:       userRepository,
 	}
 	if err := dataSeeder.Seed(); err != nil {
 		panic(err.Error())

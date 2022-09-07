@@ -5,10 +5,11 @@ import (
 )
 
 type UserRepository interface {
-	GetById(id ulid.ULID) *User
-	GetByEmailAddress(emailAddress string) *User
+	GetById(id ulid.ULID) (*User, error)
+	GetByEmailAddress(emailAddress string) (*User, error)
 	// TODO: Include pagination
-	GetAll(includeDeleted bool) []*User
-	Add(user *User)
-	Remove(user *User)
+	GetAll(includeDeleted bool) (*[]User, error)
+	Add(user *User) error
+	Remove(user *User) error
+	Save(user *User) error
 }

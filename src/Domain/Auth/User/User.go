@@ -2,6 +2,7 @@ package User
 
 import (
 	"github.com/oklog/ulid/v2"
+	"github.com/pascalallen/Baetyl/src/Adapter/Database/Type"
 	"github.com/pascalallen/Baetyl/src/Domain/Auth/PasswordHash"
 	"github.com/pascalallen/Baetyl/src/Domain/Auth/Permission"
 	"github.com/pascalallen/Baetyl/src/Domain/Auth/Role"
@@ -9,7 +10,7 @@ import (
 )
 
 type User struct {
-	Id           ulid.ULID                 `json:"id" gorm:"primaryKey;size:26;not null"`
+	Id           Type.GormUlid             `json:"id" gorm:"primaryKey;size:26;not null"`
 	FirstName    string                    `json:"first_name" gorm:"size:100;not null"`
 	LastName     string                    `json:"last_name" gorm:"size:100;not null"`
 	EmailAddress string                    `json:"email_address" gorm:"size:100;not null"`
@@ -25,7 +26,7 @@ func Register(id ulid.ULID, firstName string, lastName string, emailAddress stri
 	createdAt := time.Now()
 
 	return &User{
-		Id:           id,
+		Id:           Type.GormUlid(id),
 		FirstName:    firstName,
 		LastName:     lastName,
 		EmailAddress: emailAddress,
