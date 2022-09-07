@@ -44,6 +44,7 @@ func init() {
 		DatabaseConnection: db,
 	}
 	dataSeeder := Database.DataSeeder{
+		DatabaseConnection:   db,
 		PermissionRepository: permissionRepository,
 		RoleRepository:       roleRepository,
 	}

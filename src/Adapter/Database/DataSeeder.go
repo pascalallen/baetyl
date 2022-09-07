@@ -7,6 +7,7 @@ import (
 	"github.com/oklog/ulid/v2"
 	"github.com/pascalallen/Baetyl/src/Domain/Auth/Permission"
 	"github.com/pascalallen/Baetyl/src/Domain/Auth/Role"
+	"gorm.io/gorm"
 	"os"
 	"path"
 	"runtime"
@@ -15,6 +16,7 @@ import (
 type DataSeeder struct {
 	permissionsMap       map[string]Permission.Permission
 	rolesMap             map[string]Role.Role
+	DatabaseConnection   *gorm.DB
 	PermissionRepository Permission.PermissionRepository
 	RoleRepository       Role.RoleRepository
 }
@@ -32,7 +34,7 @@ type PermissionsData struct {
 type RoleData struct {
 	Id          string   `json:"id"`
 	Name        string   `json:"name"`
-	Permissions []string `json:"description"`
+	Permissions []string `json:"permissions"`
 }
 
 type RolesData struct {
@@ -109,8 +111,8 @@ func (dataSeeder *DataSeeder) seedPermissions() error {
 		}
 
 		if permission == nil {
-			permission := *Permission.Define(id, permissionData.Name, permissionData.Description)
-			if err := dataSeeder.PermissionRepository.Add(&permission); err != nil {
+			permission = Permission.Define(id, permissionData.Name, permissionData.Description)
+			if err := dataSeeder.PermissionRepository.Add(permission); err != nil {
 				return err
 			}
 		}
@@ -191,8 +193,21 @@ func (dataSeeder *DataSeeder) seedRoles() error {
 		}
 
 		if role == nil {
-			role := *Role.Define(id, roleData.Name)
-			if err := dataSeeder.RoleRepository.Add(&role); err != nil {
+			role = Role.Define(id, roleData.Name)
+			if len(roleData.Permissions) > 0 {
+				for _, permissionName := range roleData.Permissions {
+					permission, err := dataSeeder.PermissionRepository.GetByName(permissionName)
+					if err != nil {
+						return err
+					}
+
+					if permission != nil && !role.HasPermission(permissionName) {
+						role.AddPermission(*permission)
+					}
+				}
+			}
+
+			if err := dataSeeder.RoleRepository.Add(role); err != nil {
 				return err
 			}
 		}
@@ -201,7 +216,19 @@ func (dataSeeder *DataSeeder) seedRoles() error {
 			role.UpdateName(roleData.Name)
 		}
 
-		// TODO: Add/remove role permissions
+		var newRolePermissions []Permission.Permission
+		for _, permissionName := range roleData.Permissions {
+			permission, err := dataSeeder.PermissionRepository.GetByName(permissionName)
+			if err != nil {
+				return err
+			}
+
+			newRolePermissions = append(newRolePermissions, *permission)
+		}
+
+		if err := dataSeeder.DatabaseConnection.Model(&role).Association("Permissions").Replace(newRolePermissions); err != nil {
+			return err
+		}
 
 		if err := dataSeeder.RoleRepository.Save(role); err != nil {
 			return err
