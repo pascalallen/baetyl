@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+# change to the project root
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$DIR"/.. || exit
+
+docker-compose up -d baetyl-postgres
+
+docker-compose up -d baetyl-adminer
+
+docker container run \
+    --rm -it \
+    -v "$(pwd)":/app \
+    -w /app \
+    -p 80:80 \
+    --name baetyl-air \
+    --net baetyl \
+    cosmtrek/air

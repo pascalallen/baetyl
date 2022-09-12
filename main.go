@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	_ "github.com/joho/godotenv/autoload"
 	"github.com/pascalallen/Baetyl/src/Adapter/Database"
@@ -12,25 +11,15 @@ import (
 	"github.com/pascalallen/Baetyl/src/Domain/Auth/Permission"
 	"github.com/pascalallen/Baetyl/src/Domain/Auth/Role"
 	"github.com/pascalallen/Baetyl/src/Domain/Auth/User"
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
 	"log"
 	"net/http"
-	"os"
 )
 
-func init() {
-	dsn := fmt.Sprintf(
-		"host=%s user=%s password=%s dbname=%s port=%s",
-		os.Getenv("DB_HOST"),
-		os.Getenv("DB_USER"),
-		os.Getenv("DB_PASSWORD"),
-		os.Getenv("DB_NAME"),
-		os.Getenv("DB_PORT"),
-	)
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+func main() {
+	db, err := Database.NewGormUnitOfWork()
 	if err != nil {
-		panic("failed to connect database")
+		log.Fatal(err.Error())
+		return
 	}
 
 	if err := db.AutoMigrate(&Permission.Permission{}, &Role.Role{}, &User.User{}); err != nil {
@@ -55,9 +44,7 @@ func init() {
 	if err := dataSeeder.Seed(); err != nil {
 		panic(err.Error())
 	}
-}
 
-func main() {
 	router := gin.Default()
 	router.LoadHTMLGlob("templates/*")
 	router.Static("/public/assets", "./public/assets")
