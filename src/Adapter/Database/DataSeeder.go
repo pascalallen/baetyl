@@ -17,7 +17,7 @@ import (
 type DataSeeder struct {
 	permissionsMap       map[string]Permission.Permission
 	rolesMap             map[string]Role.Role
-	DatabaseConnection   *gorm.DB
+	UnitOfWork           *gorm.DB
 	PermissionRepository Permission.PermissionRepository
 	RoleRepository       Role.RoleRepository
 	UserRepository       User.UserRepository
@@ -242,7 +242,7 @@ func (dataSeeder *DataSeeder) seedRoles() error {
 			newRolePermissions = append(newRolePermissions, *permission)
 		}
 
-		if err := dataSeeder.DatabaseConnection.Model(&role).Association("Permissions").Replace(newRolePermissions); err != nil {
+		if err := dataSeeder.UnitOfWork.Model(&role).Association("Permissions").Replace(newRolePermissions); err != nil {
 			return err
 		}
 
@@ -331,7 +331,7 @@ func (dataSeeder *DataSeeder) seedUsers() error {
 			newUserRoles = append(newUserRoles, *role)
 		}
 
-		if err := dataSeeder.DatabaseConnection.Model(&user).Association("Roles").Replace(newUserRoles); err != nil {
+		if err := dataSeeder.UnitOfWork.Model(&user).Association("Roles").Replace(newUserRoles); err != nil {
 			return err
 		}
 

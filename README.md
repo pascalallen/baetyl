@@ -23,7 +23,7 @@ $ `cp .env.example .env`
 
 ### Bring Up Environment
 
-$ `bin/up`
+$ `bin/up` or $ `bin/watch` (to watch for backend changes)
 
 You will find the site running at [http://local.baetyl.com/](http://local.baetyl.com/)
 

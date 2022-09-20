@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	_ "github.com/joho/godotenv/autoload"
 	"github.com/pascalallen/Baetyl/src/Adapter/Database"
@@ -16,27 +17,29 @@ import (
 )
 
 func main() {
-	db, err := Database.NewGormUnitOfWork()
+	unitOfWork, err := Database.NewGormUnitOfWork()
 	if err != nil {
 		log.Fatal(err.Error())
 		return
 	}
 
-	if err := db.AutoMigrate(&Permission.Permission{}, &Role.Role{}, &User.User{}); err != nil {
-		panic("failed to migrate database")
+	if err := unitOfWork.AutoMigrate(&Permission.Permission{}, &Role.Role{}, &User.User{}); err != nil {
+		errorMessage := fmt.Sprintf("Failed to auto migrate database: %s", err.Error())
+		log.Fatal(errorMessage)
+		return
 	}
 
 	var permissionRepository Permission.PermissionRepository = GormPermissionRepository.GormPermissionRepository{
-		DatabaseConnection: db,
+		UnitOfWork: unitOfWork,
 	}
 	var roleRepository Role.RoleRepository = GormRoleRepository.GormRoleRepository{
-		DatabaseConnection: db,
+		UnitOfWork: unitOfWork,
 	}
 	var userRepository User.UserRepository = GormUserRepository.GormUserRepository{
-		DatabaseConnection: db,
+		UnitOfWork: unitOfWork,
 	}
 	dataSeeder := Database.DataSeeder{
-		DatabaseConnection:   db,
+		UnitOfWork:           unitOfWork,
 		PermissionRepository: permissionRepository,
 		RoleRepository:       roleRepository,
 		UserRepository:       userRepository,
