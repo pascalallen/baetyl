@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"github.com/oklog/ulid/v2"
-	"github.com/pkg/errors"
 	"gorm.io/gorm/schema"
 	"reflect"
 )
@@ -18,8 +17,7 @@ func (id *GormUlid) Scan(ctx context.Context, field *schema.Field, dst reflect.V
 	case string:
 		*id = GormUlid(ulid.MustParse(value))
 	default:
-		errorMessage := fmt.Sprintf("Unsupported data while parsing GormUlidType: %s", dbValue)
-		return errors.New(errorMessage)
+		return fmt.Errorf("unsupported data while parsing GormUlidType: %s", dbValue)
 	}
 	return nil
 }

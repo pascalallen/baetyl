@@ -19,14 +19,12 @@ import (
 func main() {
 	unitOfWork, err := Database.NewGormUnitOfWork()
 	if err != nil {
-		log.Fatal(err.Error())
-		return
+		log.Fatal(err)
 	}
 
 	if err := unitOfWork.AutoMigrate(&Permission.Permission{}, &Role.Role{}, &User.User{}); err != nil {
-		errorMessage := fmt.Sprintf("Failed to auto migrate database: %s", err.Error())
-		log.Fatal(errorMessage)
-		return
+		err := fmt.Errorf("failed to auto migrate database: %s", err)
+		log.Fatal(err)
 	}
 
 	var permissionRepository Permission.PermissionRepository = GormPermissionRepository.GormPermissionRepository{
@@ -45,7 +43,7 @@ func main() {
 		UserRepository:       userRepository,
 	}
 	if err := dataSeeder.Seed(); err != nil {
-		panic(err.Error())
+		log.Fatal(err)
 	}
 
 	router := gin.Default()

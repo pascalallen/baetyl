@@ -2,6 +2,7 @@ package User
 
 import (
 	"errors"
+	"fmt"
 	"github.com/oklog/ulid/v2"
 	"github.com/pascalallen/Baetyl/src/Domain/Auth/User"
 	"gorm.io/gorm"
@@ -18,7 +19,7 @@ func (repository GormUserRepository) GetById(id ulid.ULID) (*User.User, error) {
 			return nil, nil
 		}
 
-		return nil, err
+		return nil, fmt.Errorf("failed to fetch User by ID: %s", id)
 	}
 
 	return user, nil
@@ -31,7 +32,7 @@ func (repository GormUserRepository) GetByEmailAddress(emailAddress string) (*Us
 			return nil, nil
 		}
 
-		return nil, err
+		return nil, fmt.Errorf("failed to fetch User by email address: %s", emailAddress)
 	}
 
 	return user, nil
@@ -45,7 +46,7 @@ func (repository GormUserRepository) GetAll(includeDeleted bool) (*[]User.User, 
 	}
 
 	if err := repository.UnitOfWork.Find(&users).Error; err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to fetch all Users: %s", err)
 	}
 
 	return users, nil
@@ -53,7 +54,7 @@ func (repository GormUserRepository) GetAll(includeDeleted bool) (*[]User.User, 
 
 func (repository GormUserRepository) Add(user *User.User) error {
 	if err := repository.UnitOfWork.Create(&user).Error; err != nil {
-		return err
+		return fmt.Errorf("failed to persist User to database: %s", user)
 	}
 
 	return nil
@@ -63,15 +64,15 @@ func (repository GormUserRepository) Remove(user *User.User) error {
 	user.Delete()
 
 	if err := repository.UnitOfWork.Save(&user).Error; err != nil {
-		return err
+		return fmt.Errorf("failed to delete User from database: %s", user)
 	}
 
 	return nil
 }
 
-func (repository GormUserRepository) Save(user *User.User) error {
+func (repository GormUserRepository) UpdateOrAdd(user *User.User) error {
 	if err := repository.UnitOfWork.Save(&user).Error; err != nil {
-		return err
+		return fmt.Errorf("failed to update User: %s", user)
 	}
 
 	return nil

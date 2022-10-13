@@ -2,7 +2,6 @@ package Database
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"github.com/oklog/ulid/v2"
 	"github.com/pascalallen/Baetyl/src/Domain/Auth/Permission"
@@ -73,12 +72,12 @@ func (dataSeeder *DataSeeder) Seed() error {
 
 func (dataSeeder *DataSeeder) seedPermissions() error {
 	if err := dataSeeder.loadPermissionsMap(); err != nil {
-		return err
+		return fmt.Errorf("failed to load permissions map: %s", err)
 	}
 
 	_, filename, _, ok := runtime.Caller(2)
 	if !ok {
-		return errors.New("error getting filename")
+		return fmt.Errorf("error getting filename")
 	}
 
 	rootDir := path.Dir(filename)
@@ -86,12 +85,12 @@ func (dataSeeder *DataSeeder) seedPermissions() error {
 
 	contents, err := os.ReadFile(permissionsFile)
 	if err != nil {
-		return fmt.Errorf("error reading permissions file: %s", err.Error())
+		return fmt.Errorf("error reading permissions file: %s", err)
 	}
 
 	var permissionsData PermissionsData
 	if err := json.Unmarshal(contents, &permissionsData); err != nil {
-		return fmt.Errorf("error parsing permissions json: %s", err.Error())
+		return fmt.Errorf("failed to parse Permission seed file contents: %s, error: %s", contents, err)
 	}
 
 	var currentPermissions []string
@@ -141,13 +140,13 @@ func (dataSeeder *DataSeeder) seedPermissions() error {
 			permission.UpdateDescription(permissionData.Description)
 		}
 
-		if err := dataSeeder.PermissionRepository.Save(permission); err != nil {
+		if err := dataSeeder.PermissionRepository.UpdateOrAdd(permission); err != nil {
 			return err
 		}
 	}
 
 	if err := dataSeeder.loadPermissionsMap(); err != nil {
-		return err
+		return fmt.Errorf("failed to load permissions map: %s", err)
 	}
 
 	return nil
@@ -155,12 +154,12 @@ func (dataSeeder *DataSeeder) seedPermissions() error {
 
 func (dataSeeder *DataSeeder) seedRoles() error {
 	if err := dataSeeder.loadRolesMap(); err != nil {
-		return err
+		return fmt.Errorf("failed to load roles map: %s", err)
 	}
 
 	_, filename, _, ok := runtime.Caller(2)
 	if !ok {
-		return errors.New("error getting filename")
+		return fmt.Errorf("error getting filename")
 	}
 
 	rootDir := path.Dir(filename)
@@ -168,12 +167,12 @@ func (dataSeeder *DataSeeder) seedRoles() error {
 
 	contents, err := os.ReadFile(rolesFile)
 	if err != nil {
-		return fmt.Errorf("error reading roles file: %s", err.Error())
+		return fmt.Errorf("error reading roles file: %s", err)
 	}
 
 	var rolesData RolesData
 	if err := json.Unmarshal(contents, &rolesData); err != nil {
-		return fmt.Errorf("error parsing roles json: %s", err.Error())
+		return fmt.Errorf("failed to parse Role seed file contents: %s, error: %s", contents, err)
 	}
 
 	var currentRoles []string
@@ -243,16 +242,16 @@ func (dataSeeder *DataSeeder) seedRoles() error {
 		}
 
 		if err := dataSeeder.UnitOfWork.Model(&role).Association("Permissions").Replace(newRolePermissions); err != nil {
-			return err
+			return fmt.Errorf("failed to update Role permissions: %s, error: %s", newRolePermissions, err)
 		}
 
-		if err := dataSeeder.RoleRepository.Save(role); err != nil {
+		if err := dataSeeder.RoleRepository.UpdateOrAdd(role); err != nil {
 			return err
 		}
 	}
 
 	if err := dataSeeder.loadRolesMap(); err != nil {
-		return err
+		return fmt.Errorf("failed to load roles map: %s", err)
 	}
 
 	return nil
@@ -261,7 +260,7 @@ func (dataSeeder *DataSeeder) seedRoles() error {
 func (dataSeeder *DataSeeder) seedUsers() error {
 	_, filename, _, ok := runtime.Caller(2)
 	if !ok {
-		return errors.New("error getting filename")
+		return fmt.Errorf("error getting filename")
 	}
 
 	rootDir := path.Dir(filename)
@@ -269,12 +268,12 @@ func (dataSeeder *DataSeeder) seedUsers() error {
 
 	contents, err := os.ReadFile(usersFile)
 	if err != nil {
-		return fmt.Errorf("error reading users file: %s", err.Error())
+		return fmt.Errorf("error reading users file: %s", err)
 	}
 
 	var usersData UsersData
 	if err := json.Unmarshal(contents, &usersData); err != nil {
-		return fmt.Errorf("error parsing users json: %s", err.Error())
+		return fmt.Errorf("failed to parse User seed file contents: %s, error: %s", contents, err)
 	}
 
 	for _, userData := range usersData.Users {
@@ -332,10 +331,10 @@ func (dataSeeder *DataSeeder) seedUsers() error {
 		}
 
 		if err := dataSeeder.UnitOfWork.Model(&user).Association("Roles").Replace(newUserRoles); err != nil {
-			return err
+			return fmt.Errorf("failed to update User roles: %s, error: %s", newUserRoles, err)
 		}
 
-		if err := dataSeeder.UserRepository.Save(user); err != nil {
+		if err := dataSeeder.UserRepository.UpdateOrAdd(user); err != nil {
 			return err
 		}
 	}

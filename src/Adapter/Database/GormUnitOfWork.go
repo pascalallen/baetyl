@@ -1,7 +1,6 @@
 package Database
 
 import (
-	"errors"
 	"fmt"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -20,8 +19,7 @@ func NewGormUnitOfWork() (*gorm.DB, error) {
 
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
-		errorMessage := fmt.Sprintf("Failed to connect to database: %s", err.Error())
-		return nil, errors.New(errorMessage)
+		return nil, fmt.Errorf("failed to connect to database: %s", err)
 	}
 
 	return db, nil

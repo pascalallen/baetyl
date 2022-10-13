@@ -11,5 +11,5 @@ type PermissionRepository interface {
 	GetAll() (*[]Permission, error)
 	Add(permission *Permission) error
 	Remove(permission *Permission) error
-	Save(permission *Permission) error
+	UpdateOrAdd(permission *Permission) error
 }

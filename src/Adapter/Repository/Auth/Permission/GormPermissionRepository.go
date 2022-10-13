@@ -2,6 +2,7 @@ package Permission
 
 import (
 	"errors"
+	"fmt"
 	"github.com/oklog/ulid/v2"
 	"github.com/pascalallen/Baetyl/src/Domain/Auth/Permission"
 	"gorm.io/gorm"
@@ -18,7 +19,7 @@ func (repository GormPermissionRepository) GetById(id ulid.ULID) (*Permission.Pe
 			return nil, nil
 		}
 
-		return nil, err
+		return nil, fmt.Errorf("failed to fetch Permission by ID: %s", id)
 	}
 
 	return permission, nil
@@ -31,7 +32,7 @@ func (repository GormPermissionRepository) GetByName(name string) (*Permission.P
 			return nil, nil
 		}
 
-		return nil, err
+		return nil, fmt.Errorf("failed to fetch Permission by name: %s", name)
 	}
 
 	return permission, nil
@@ -41,7 +42,7 @@ func (repository GormPermissionRepository) GetByName(name string) (*Permission.P
 func (repository GormPermissionRepository) GetAll() (*[]Permission.Permission, error) {
 	var permissions *[]Permission.Permission
 	if err := repository.UnitOfWork.Find(&permissions).Error; err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to fetch all Permissions: %s", err)
 	}
 
 	return permissions, nil
@@ -49,7 +50,7 @@ func (repository GormPermissionRepository) GetAll() (*[]Permission.Permission, e
 
 func (repository GormPermissionRepository) Add(permission *Permission.Permission) error {
 	if err := repository.UnitOfWork.Create(&permission).Error; err != nil {
-		return err
+		return fmt.Errorf("failed to persist Permission to database: %s", permission)
 	}
 
 	return nil
@@ -57,15 +58,15 @@ func (repository GormPermissionRepository) Add(permission *Permission.Permission
 
 func (repository GormPermissionRepository) Remove(permission *Permission.Permission) error {
 	if err := repository.UnitOfWork.Delete(&permission).Error; err != nil {
-		return err
+		return fmt.Errorf("failed to delete Permission from database: %s", permission)
 	}
 
 	return nil
 }
 
-func (repository GormPermissionRepository) Save(permission *Permission.Permission) error {
+func (repository GormPermissionRepository) UpdateOrAdd(permission *Permission.Permission) error {
 	if err := repository.UnitOfWork.Save(&permission).Error; err != nil {
-		return err
+		return fmt.Errorf("failed to update Permission: %s", permission)
 	}
 
 	return nil
