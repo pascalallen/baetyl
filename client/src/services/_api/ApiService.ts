@@ -60,6 +60,8 @@ const addAuthorizationHeader = (api: AxiosInstance, sessionStore?: SessionStore)
 
         return config;
       }
+
+      return config;
     });
   }
 };
