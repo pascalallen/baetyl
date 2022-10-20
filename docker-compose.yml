@@ -20,6 +20,9 @@ services:
     build:
       context: .
     container_name: baetyl-go
+    environment:
+      POSTGRES_HOST: ${DB_HOST}
+      POSTGRES_PORT: ${DB_PORT}
     ports:
       - "80:80"
     volumes:
@@ -36,6 +39,7 @@ services:
 
   baetyl-adminer:
     image: adminer:4-standalone
+    container_name: baetyl-adminer
     restart: always
     ports:
       - "8888:8080"

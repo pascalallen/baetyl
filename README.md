@@ -1,6 +1,14 @@
 # Baetyl
 
-Fully containerized Go web dev kit. Preconfigured with Docker, Postgres, Go, React, TypeScript, and Sass.
+Fully containerized Go web dev kit. Preconfigured with:
+
+- Docker
+- Postgres
+- Go
+- Adminer
+- React
+- TypeScript
+- Sass
 
 ## Prerequisites
 
