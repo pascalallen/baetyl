@@ -37,6 +37,29 @@ services:
         aliases:
           - local.baetyl.com
 
+  baetyl-push:
+    build:
+      context: ./etc/mercure
+    container_name: baetyl-push
+    restart: unless-stopped
+    environment:
+      - SERVER_NAME=:80
+      - VIRTUAL_HOST=push-local.baetyl.com
+      - MERCURE_PUBLISHER_JWT_KEY=!ChangeMe!
+      - MERCURE_SUBSCRIBER_JWT_KEY=!ChangeMe!
+    command: /usr/bin/caddy run -config /etc/caddy/Caddyfile.dev
+    volumes:
+      - type: volume
+        source: caddy_data
+        target: /data
+      - type: volume
+        source: caddy_config
+        target: /config
+    networks:
+      baetyl:
+        aliases:
+          - push-local.baetyl.com
+
   baetyl-adminer:
     image: adminer:4-standalone
     container_name: baetyl-adminer
@@ -53,3 +76,5 @@ networks:
 volumes:
   dbdata:
     driver: local
+  caddy_data:
+  caddy_config:

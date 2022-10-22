@@ -1,7 +1,10 @@
 package main
 
 import (
+	"encoding/base64"
+	"encoding/json"
 	"fmt"
+	"github.com/dunglas/mercure"
 	"github.com/gin-gonic/gin"
 	_ "github.com/joho/godotenv/autoload"
 	"github.com/pascalallen/Baetyl/src/Adapter/Database"
@@ -14,6 +17,7 @@ import (
 	"github.com/pascalallen/Baetyl/src/Domain/Auth/User"
 	"log"
 	"net/http"
+	"os"
 )
 
 func main() {
@@ -46,11 +50,30 @@ func main() {
 		log.Fatal(err)
 	}
 
+	mercureHub, err := mercure.NewHub(
+		mercure.WithPublisherJWT([]byte(os.Getenv("MERCURE_JWT_KEY")), "HS256"),
+		mercure.WithSubscriberJWT([]byte(os.Getenv("MERCURE_JWT_KEY")), "HS256"),
+	)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	defer mercureHub.Stop()
+	http.Handle("/.well-known/mercure", mercureHub)
+
 	router := gin.Default()
 	router.LoadHTMLGlob("templates/*")
 	router.Static("/public/assets", "./public/assets")
+
+	environment := map[string]string{
+		"APP_BASE_URL":       os.Getenv("APP_BASE_URL"),
+		"MERCURE_PUBLIC_URL": os.Getenv("MERCURE_PUBLIC_URL"),
+	}
+	envJson, _ := json.Marshal(environment)
 	router.NoRoute(func(c *gin.Context) {
-		c.HTML(http.StatusOK, "index.tmpl", gin.H{})
+		c.HTML(http.StatusOK, "index.tmpl", gin.H{
+			"environment": base64.StdEncoding.EncodeToString(envJson),
+		})
 	})
 
 	v1 := router.Group("/api/v1")
