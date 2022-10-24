@@ -9,6 +9,7 @@ Fully containerized Go web dev kit. Preconfigured with:
 - React
 - TypeScript
 - Sass
+- Mercure
 
 ## Prerequisites
 
