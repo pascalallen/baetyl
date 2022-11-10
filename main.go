@@ -58,12 +58,22 @@ func main() {
 		log.Fatal(err)
 	}
 
-	defer mercureHub.Stop()
-	http.Handle("/.well-known/mercure", mercureHub)
+	defer func(mercureHub *mercure.Hub) {
+		if err := mercureHub.Stop(); err != nil {
+			log.Fatal(err)
+		}
+	}(mercureHub)
 
 	router := gin.Default()
 	router.LoadHTMLGlob("templates/*")
 	router.Static("/public/assets", "./public/assets")
+	// TODO: Determine how to publish updates to Mercure hub
+	router.Any("/.well-known/mercure", func(context *gin.Context) {
+		mercureHub.PublishHandler(context.Writer, context.Request)
+		mercureHub.SubscribeHandler(context.Writer, context.Request)
+		mercureHub.SubscriptionHandler(context.Writer, context.Request)
+		mercureHub.SubscriptionsHandler(context.Writer, context.Request)
+	})
 
 	environment := map[string]string{
 		"APP_BASE_URL":       os.Getenv("APP_BASE_URL"),
@@ -92,12 +102,23 @@ func main() {
 	log.Fatal(router.Run(":80"))
 }
 
-func handleLoginUser(c *gin.Context) {}
+// TODO: Implement session routes
+func handleLoginUser(c *gin.Context) {
+	log.Print(c)
+}
 
-func handleLogoutUser(c *gin.Context) {}
+func handleLogoutUser(c *gin.Context) {
+	log.Print(c)
+}
 
-func handleRefreshUserSession(c *gin.Context) {}
+func handleRefreshUserSession(c *gin.Context) {
+	log.Print(c)
+}
 
-func handleRequestPasswordReset(c *gin.Context) {}
+func handleRequestPasswordReset(c *gin.Context) {
+	log.Print(c)
+}
 
-func handleResetPassword(c *gin.Context) {}
+func handleResetPassword(c *gin.Context) {
+	log.Print(c)
+}
