@@ -26,7 +26,7 @@ $ `cd <projects-parent-directory> && git clone https://github.com/pascalallen/Ba
 
 $ `127.0.0.1       local.baetyl.com`
 
-### Copy & Modify .env File
+### Copy & Modify `.env` File
 
 $ `cp .env.example .env`
 
