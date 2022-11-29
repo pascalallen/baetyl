@@ -69,10 +69,9 @@ func main() {
 	router.Static("/public/assets", "./public/assets")
 	// TODO: Determine how to publish updates to Mercure hub
 	router.Any("/.well-known/mercure", func(context *gin.Context) {
+		// Mercure publish data: id, topic, data
 		mercureHub.PublishHandler(context.Writer, context.Request)
 		mercureHub.SubscribeHandler(context.Writer, context.Request)
-		mercureHub.SubscriptionHandler(context.Writer, context.Request)
-		mercureHub.SubscriptionsHandler(context.Writer, context.Request)
 	})
 
 	environment := map[string]string{
