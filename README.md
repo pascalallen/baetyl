@@ -9,7 +9,8 @@ Fully containerized Go web dev kit. Preconfigured with:
 - React
 - TypeScript
 - Sass
-- Mercure
+- Mercure (coming soon)
+- Models, database migrations, and seeders for User, Role, and Permission
 
 ## Prerequisites
 
