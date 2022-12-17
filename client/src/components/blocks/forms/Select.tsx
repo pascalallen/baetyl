@@ -37,7 +37,7 @@ const Select = (props: SelectProps): ReactElement => {
   return (
     <select
       id={id}
-      className={classNames('form-control', className, !isValid ? 'is-invalid' : '')}
+      className={classNames('form-select', className, !isValid ? 'is-invalid' : '')}
       name={name}
       defaultValue={defaultValue}
       value={value}
