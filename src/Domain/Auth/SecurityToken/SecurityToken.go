@@ -18,11 +18,11 @@ type SecurityToken struct {
 	ExpiresAt time.Time                           `json:"expires_at" gorm:"not null"`
 }
 
-func GenerateReset(id ulid.ULID, user User.User, expiresAt time.Time) SecurityToken {
+func GenerateReset(id ulid.ULID, user User.User, expiresAt time.Time) *SecurityToken {
 	crypto := Crypto.Generate()
 	createdAt := time.Now()
 
-	return SecurityToken{
+	return &SecurityToken{
 		Id:        Type.GormUlid(id),
 		Crypto:    crypto,
 		Type:      SecurityTokenType.RESET,
@@ -32,11 +32,11 @@ func GenerateReset(id ulid.ULID, user User.User, expiresAt time.Time) SecurityTo
 	}
 }
 
-func GenerateRefresh(id ulid.ULID, user User.User, expiresAt time.Time) SecurityToken {
+func GenerateRefresh(id ulid.ULID, user User.User, expiresAt time.Time) *SecurityToken {
 	crypto := Crypto.Generate()
 	createdAt := time.Now()
 
-	return SecurityToken{
+	return &SecurityToken{
 		Id:        Type.GormUlid(id),
 		Crypto:    crypto,
 		Type:      SecurityTokenType.REFRESH,
