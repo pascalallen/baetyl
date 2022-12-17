@@ -14,6 +14,7 @@ import (
 	GormUserRepository "github.com/pascalallen/Baetyl/src/Adapter/Repository/Auth/User"
 	"github.com/pascalallen/Baetyl/src/Domain/Auth/Permission"
 	"github.com/pascalallen/Baetyl/src/Domain/Auth/Role"
+	"github.com/pascalallen/Baetyl/src/Domain/Auth/SecurityToken"
 	"github.com/pascalallen/Baetyl/src/Domain/Auth/User"
 	"log"
 	"net/http"
@@ -26,7 +27,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	if err := unitOfWork.AutoMigrate(&Permission.Permission{}, &Role.Role{}, &User.User{}); err != nil {
+	if err := unitOfWork.AutoMigrate(&Permission.Permission{}, &Role.Role{}, &User.User{}, &SecurityToken.SecurityToken{}); err != nil {
 		err := fmt.Errorf("failed to auto migrate database: %s", err)
 		log.Fatal(err)
 	}

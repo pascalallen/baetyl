@@ -13,7 +13,8 @@ type SecurityToken struct {
 	Id        Type.GormUlid                       `json:"id" gorm:"primaryKey;size:26;not null"`
 	Crypto    Crypto.Crypto                       `json:"crypto" gorm:"size:64;not null"`
 	Type      SecurityTokenType.SecurityTokenType `json:"type" gorm:"size:10;not null"`
-	User      User.User                           `json:"user"`
+	UserId    Type.GormUlid                       `json:"-"`
+	User      User.User                           `json:"user" gorm:"foreignKey:UserId;references:Id;constraint:OnDelete:CASCADE"`
 	CreatedAt time.Time                           `json:"created_at" gorm:"not null"`
 	ExpiresAt time.Time                           `json:"expires_at" gorm:"not null"`
 }
