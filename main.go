@@ -16,6 +16,7 @@ import (
 	"github.com/pascalallen/Baetyl/src/Domain/Auth/Role"
 	"github.com/pascalallen/Baetyl/src/Domain/Auth/SecurityToken"
 	"github.com/pascalallen/Baetyl/src/Domain/Auth/User"
+	"gorm.io/gorm"
 	"log"
 	"net/http"
 	"os"
@@ -27,10 +28,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	if err := unitOfWork.AutoMigrate(&Permission.Permission{}, &Role.Role{}, &User.User{}, &SecurityToken.SecurityToken{}); err != nil {
-		err := fmt.Errorf("failed to auto migrate database: %s", err)
-		log.Fatal(err)
-	}
+	migrate(unitOfWork)
 
 	var permissionRepository Permission.PermissionRepository = GormPermissionRepository.GormPermissionRepository{
 		UnitOfWork: unitOfWork,
@@ -41,6 +39,25 @@ func main() {
 	var userRepository User.UserRepository = GormUserRepository.GormUserRepository{
 		UnitOfWork: unitOfWork,
 	}
+
+	seed(unitOfWork, permissionRepository, roleRepository, userRepository)
+
+	router := gin.Default()
+	mercureHub := createMercureHub()
+
+	registerRoutes(router, mercureHub)
+
+	log.Fatal(router.Run(":80"))
+}
+
+func migrate(unitOfWork *gorm.DB) {
+	if err := unitOfWork.AutoMigrate(&Permission.Permission{}, &Role.Role{}, &User.User{}, &SecurityToken.SecurityToken{}); err != nil {
+		err := fmt.Errorf("failed to auto migrate database: %s", err)
+		log.Fatal(err)
+	}
+}
+
+func seed(unitOfWork *gorm.DB, permissionRepository Permission.PermissionRepository, roleRepository Role.RoleRepository, userRepository User.UserRepository) {
 	dataSeeder := Database.DataSeeder{
 		UnitOfWork:           unitOfWork,
 		PermissionRepository: permissionRepository,
@@ -50,7 +67,9 @@ func main() {
 	if err := dataSeeder.Seed(); err != nil {
 		log.Fatal(err)
 	}
+}
 
+func createMercureHub() *mercure.Hub {
 	mercureHub, err := mercure.NewHub(
 		mercure.WithPublisherJWT([]byte(os.Getenv("MERCURE_JWT_KEY")), "HS256"),
 		mercure.WithSubscriberJWT([]byte(os.Getenv("MERCURE_JWT_KEY")), "HS256"),
@@ -65,7 +84,10 @@ func main() {
 		}
 	}(mercureHub)
 
-	router := gin.Default()
+	return mercureHub
+}
+
+func registerRoutes(router *gin.Engine, mercureHub *mercure.Hub) {
 	router.LoadHTMLGlob("templates/*")
 	router.Static("/public/assets", "./public/assets")
 	// TODO: Determine how to publish updates to Mercure hub
@@ -98,11 +120,9 @@ func main() {
 			auth.POST("/password", handleResetPassword)
 		}
 	}
-
-	log.Fatal(router.Run(":80"))
 }
 
-// TODO: Implement session routes
+// TODO: Implement session registerRoutes
 func handleLoginUser(c *gin.Context) {
 	log.Print(c)
 }
