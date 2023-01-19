@@ -2,6 +2,7 @@
 
 Fully containerized Go web dev kit. Preconfigured with:
 
+- Kubernetes (coming soon)
 - Docker
 - Postgres
 - Go
@@ -53,3 +54,35 @@ $ `bin/yarn watch`
 ### Take Down Environment
 
 $ `bin/down`
+
+## Deploying To Kubernetes
+
+### Update Container Registry
+
+$ `bin/update-registry Dockerfile ghcr.io/pascalallen/baetyl`
+
+### Deploy To Kubernetes
+
+$ `kubectl apply -f etc/k8s/deployment.yaml`
+$ `kubectl apply -f etc/k8s/service.yaml`
+
+### Check Deployment Status
+
+$ `kubectl get deployments`
+
+### Check Service Status
+
+$ `kubectl get services`
+
+### Check All Resources
+
+$ `kubectl get all`
+
+### Follow Logs
+
+$ `kubectl logs -f baetyl-app`
+
+### Delete Kubernetes Resources
+
+$ `kubectl delete -f etc/k8s/deployment.yaml`
+$ `kubectl delete -f etc/k8s/service.yaml`

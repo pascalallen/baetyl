@@ -4,5 +4,6 @@
 
 ### misc
 .env
+etc/k8s/dockerconfigjson.yaml
 .idea
 tmp/

@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+
+# change to the project root
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$DIR"/.. || exit
+
+# Build, tag, and push container image to registry repository. The tag will be the short revision hash of HEAD.
+
+set -eu
+
+usage()
+{
+	echo "usage: <Dockerfile> <registry-repo-url>"
+	exit 1
+}
+
+if [ "$#" -ne 2 ]; then
+	usage
+fi
+
+DOCKERFILE=$1
+REGISTRY_REPO=$2
+SCRIPT_DIR="$(pwd)"
+GIT_REVISION="$(git rev-parse --short HEAD)"
+CONTAINER_TAG=${REGISTRY_REPO}:${GIT_REVISION}
+DOCKERFILE_FULL_PATH=${SCRIPT_DIR}/${DOCKERFILE}
+CONTAINER_DIR="$(dirname ${DOCKERFILE_FULL_PATH})"
+BUILD_ARGS="--build-arg GIT_REVISION=${GIT_REVISION}"
+
+docker build ${BUILD_ARGS} -f ${DOCKERFILE_FULL_PATH} -t ${CONTAINER_TAG} ${CONTAINER_DIR}
+docker tag ${CONTAINER_TAG} ${CONTAINER_TAG}
+docker push ${CONTAINER_TAG}
+docker rmi ${CONTAINER_TAG}

@@ -1,5 +1,9 @@
 FROM golang:1.19
 
+LABEL org.opencontainers.image.source=https://github.com/pascalallen/Baetyl
+LABEL org.opencontainers.image.description="Container image for Baetyl"
+LABEL org.opencontainers.image.licenses=MIT
+
 WORKDIR /app
 
 COPY go.mod ./

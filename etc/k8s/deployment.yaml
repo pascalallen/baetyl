@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: baetyl-app
+  namespace: default
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      name: baetyl-app
+  template:
+    metadata:
+      labels:
+        name: baetyl-app
+    spec:
+      containers:
+        - name: baetyl-app
+          image: ghcr.io/pascalallen/baetyl
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 80
+      imagePullSecrets:
+        - name: dockerconfigjson-github-com
