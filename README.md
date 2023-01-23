@@ -1,6 +1,6 @@
 # Baetyl
 
-A lightweight Go web dev kit. Preconfigured with:
+A lightweight SDK for Go. Preconfigured with:
 
 - Kubernetes (coming soon)
 - Docker
