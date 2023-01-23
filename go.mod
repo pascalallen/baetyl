@@ -1,4 +1,4 @@
-module github.com/pascalallen/Baetyl
+module github.com/pascalallen/baetyl
 
 go 1.19
 

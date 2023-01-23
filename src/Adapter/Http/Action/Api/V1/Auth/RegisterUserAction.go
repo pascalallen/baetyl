@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/oklog/ulid/v2"
-	RegisterUserResponder "github.com/pascalallen/Baetyl/src/Adapter/Http/Responder/Api/V1/Auth"
-	GormUserRepository "github.com/pascalallen/Baetyl/src/Adapter/Repository/Auth/User"
-	UserValidations "github.com/pascalallen/Baetyl/src/Adapter/Validation/Auth/User"
-	"github.com/pascalallen/Baetyl/src/Domain/Auth/PasswordHash"
-	"github.com/pascalallen/Baetyl/src/Domain/Auth/User"
+	RegisterUserResponder "github.com/pascalallen/baetyl/src/Adapter/Http/Responder/Api/V1/Auth"
+	GormUserRepository "github.com/pascalallen/baetyl/src/Adapter/Repository/Auth/User"
+	UserValidations "github.com/pascalallen/baetyl/src/Adapter/Validation/Auth/User"
+	"github.com/pascalallen/baetyl/src/Domain/Auth/PasswordHash"
+	"github.com/pascalallen/baetyl/src/Domain/Auth/User"
 )
 
 func Handle(c *gin.Context) {

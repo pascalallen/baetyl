@@ -2,8 +2,8 @@ package SecurityToken
 
 import (
 	"github.com/oklog/ulid/v2"
-	"github.com/pascalallen/Baetyl/src/Domain/Auth/Crypto"
-	"github.com/pascalallen/Baetyl/src/Domain/Auth/User"
+	"github.com/pascalallen/baetyl/src/Domain/Auth/Crypto"
+	"github.com/pascalallen/baetyl/src/Domain/Auth/User"
 )
 
 type SecurityTokenRepository interface {

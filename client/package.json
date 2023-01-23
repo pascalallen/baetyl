@@ -1,9 +1,9 @@
 {
-  "name": "Baetyl",
+  "name": "baetyl",
   "version": "0.1.0-dev",
   "description": "Fully containerized Go web dev kit. Preconfigured with Docker, Postgres, Go, React, TypeScript, and Sass.",
   "main": "src/app.tsx",
-  "repository": "https://github.com/pascalallen/Baetyl",
+  "repository": "https://github.com/pascalallen/baetyl",
   "author": "Pascal Allen",
   "license": "UNLICENSED",
   "private": true,

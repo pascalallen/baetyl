@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/oklog/ulid/v2"
-	"github.com/pascalallen/Baetyl/src/Domain/Auth/User"
+	"github.com/pascalallen/baetyl/src/Domain/Auth/User"
 	"gorm.io/gorm"
 )
 

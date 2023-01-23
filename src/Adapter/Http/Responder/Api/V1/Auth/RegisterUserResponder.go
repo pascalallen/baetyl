@@ -3,8 +3,8 @@ package Auth
 import (
 	"encoding/json"
 	"github.com/gin-gonic/gin"
-	"github.com/pascalallen/Baetyl/src/Adapter/Http/Responder/JSend"
-	"github.com/pascalallen/Baetyl/src/Domain/Auth/User"
+	"github.com/pascalallen/baetyl/src/Adapter/Http/Responder/JSend"
+	"github.com/pascalallen/baetyl/src/Domain/Auth/User"
 	"net/http"
 )
 

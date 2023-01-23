@@ -2,7 +2,7 @@ package Permission
 
 import (
 	"github.com/oklog/ulid/v2"
-	"github.com/pascalallen/Baetyl/src/Adapter/Database/Type"
+	"github.com/pascalallen/baetyl/src/Adapter/Database/Type"
 	"time"
 )
 

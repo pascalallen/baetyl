@@ -2,10 +2,10 @@ package User
 
 import (
 	"github.com/oklog/ulid/v2"
-	"github.com/pascalallen/Baetyl/src/Adapter/Database/Type"
-	"github.com/pascalallen/Baetyl/src/Domain/Auth/PasswordHash"
-	"github.com/pascalallen/Baetyl/src/Domain/Auth/Permission"
-	"github.com/pascalallen/Baetyl/src/Domain/Auth/Role"
+	"github.com/pascalallen/baetyl/src/Adapter/Database/Type"
+	"github.com/pascalallen/baetyl/src/Domain/Auth/PasswordHash"
+	"github.com/pascalallen/baetyl/src/Domain/Auth/Permission"
+	"github.com/pascalallen/baetyl/src/Domain/Auth/Role"
 	"time"
 )
 
