@@ -1,5 +1,11 @@
 # Baetyl
 
+![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/pascalallen/baetyl)
+[![Go Report Card](https://goreportcard.com/badge/github.com/pascalallen/baetyl)](https://goreportcard.com/report/github.com/pascalallen/baetyl)
+![GitHub Workflow Status (with branch)](https://img.shields.io/github/actions/workflow/status/pascalallen/baetyl/go.yml?branch=main)
+![GitHub](https://img.shields.io/github/license/pascalallen/baetyl)
+![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/pascalallen/baetyl)
+
 A lightweight SDK for Go. Preconfigured with:
 
 - Kubernetes (coming soon)
