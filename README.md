@@ -6,7 +6,7 @@
 ![GitHub](https://img.shields.io/github/license/pascalallen/baetyl)
 ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/pascalallen/baetyl)
 
-A lightweight SDK for Go. Preconfigured with:
+A lightweight SDK for Go web development. Fork me. Preconfigured with:
 
 - Kubernetes (coming soon)
 - Docker

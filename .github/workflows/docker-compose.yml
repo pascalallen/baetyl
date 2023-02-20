@@ -1,0 +1,32 @@
+name: Docker Compose
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  docker-compose-tests:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Build or rebuild services
+        env:
+          DB_NAME: baetyl
+          DB_USER: pascalallen
+          DB_PASSWORD: 'pa$$w0rd'
+        run: docker-compose build
+
+      - name: Create and start containers
+        env:
+          DB_NAME: baetyl
+          DB_USER: pascalallen
+          DB_PASSWORD: 'pa$$w0rd'
+        run: docker-compose up -d
+
+      - name: Stop and remove containers, networks, images, and volumes
+        run: docker-compose down
